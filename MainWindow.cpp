@@ -21,7 +21,7 @@ MainWindow::MainWindow()
               B_QUIT_ON_WINDOW_CLOSE | B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS)
 {
     BToolBar* toolbar = new BToolBar(B_HORIZONTAL);
-    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About");
+    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About", "About");
 
     auto MakeBtn = [&](const char* label, uint32 cmd) -> BButton* {
         BButton* btn = new BButton("btn", label, new BMessage(cmd));

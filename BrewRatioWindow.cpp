@@ -56,7 +56,7 @@ BrewRatioWindow::BrewRatioWindow()
     fResultView->SetExplicitAlignment(BAlignment(B_ALIGN_CENTER, B_ALIGN_MIDDLE));
 
     BToolBar* toolbar = new BToolBar(B_HORIZONTAL);
-    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About");
+    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About", "About");
 
     BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
         .Add(toolbar)

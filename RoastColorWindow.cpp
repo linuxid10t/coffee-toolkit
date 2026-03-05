@@ -378,7 +378,7 @@ RoastColorWindow::RoastColorWindow()
     fTipsScroll->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 200));
 
     BToolBar* toolbar = new BToolBar(B_HORIZONTAL);
-    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About");
+    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About", "About");
 
     BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
         .Add(toolbar)
