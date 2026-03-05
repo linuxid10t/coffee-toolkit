@@ -1,5 +1,8 @@
 # Coffee Toolkit — Project Brief
 
+**Author:** David Masson
+**App signature:** `application/x-vnd.DavidMasson.CoffeeToolkit`
+
 A native Haiku OS GUI application written in C++ using the Haiku API
 (BWindow, BView, BLayoutBuilder, etc.). The app has a main window with
 four large buttons, each opening a tool window.
