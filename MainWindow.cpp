@@ -7,38 +7,46 @@
 #include "RoastColorWindow.h"
 #include "DetailWindow.h"
 
+#include <Application.h>
 #include <InterfaceDefs.h>
+#include <LayoutBuilder.h>
 #include <Message.h>
 #include <Rect.h>
 #include <View.h>
 
 MainWindow::MainWindow()
-    : BWindow(BRect(100, 100,
-                    100 + kPad + 4*kBtnW + 3*kPad + kPad,
-                    100 + kPad + kBtnH   + kPad),
+    : BWindow(BRect(100, 100, 200, 200),
               "Coffee Toolkit",
               B_TITLED_WINDOW,
-              B_QUIT_ON_WINDOW_CLOSE | B_NOT_RESIZABLE)
+              B_QUIT_ON_WINDOW_CLOSE | B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS)
 {
-    BRect content = Bounds();
-    BView* bg = new BView(content, "background", B_FOLLOW_ALL, B_WILL_DRAW);
-    bg->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-    AddChild(bg);
+    BToolBar* toolbar = new BToolBar(B_HORIZONTAL);
+    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About");
 
-    auto MakeBtn = [&](const char* label, uint32 cmd, int col) -> BButton* {
-        float x = kPad + col * (kBtnW + kPad);
-        BButton* btn = new BButton(
-            BRect(x, kPad, x + kBtnW - 1, kPad + kBtnH - 1),
-            "btn", label, new BMessage(cmd));
-        bg->AddChild(btn);
+    auto MakeBtn = [&](const char* label, uint32 cmd) -> BButton* {
+        BButton* btn = new BButton("btn", label, new BMessage(cmd));
+        btn->SetExplicitMinSize(BSize(kBtnW, kBtnH));
+        btn->SetExplicitMaxSize(BSize(kBtnW, kBtnH));
         return btn;
     };
 
-    fBrewRatioBtn  = MakeBtn("Brew Ratio\nCalculator", MSG_BREW_RATIO,  0);
-    fParticleBtn   = MakeBtn("Particle\nAnalyzer",     MSG_PARTICLE,    1);
-    fExtractionBtn = MakeBtn("Extraction\n%",          MSG_EXTRACTION,  2);
-    fRoastBtn      = MakeBtn("Roast Color\nAnalyzer",  MSG_ROAST_COLOR, 3);
+    fBrewRatioBtn  = MakeBtn("Brew Ratio\nCalculator", MSG_BREW_RATIO);
+    fParticleBtn   = MakeBtn("Particle\nAnalyzer",     MSG_PARTICLE);
+    fExtractionBtn = MakeBtn("Extraction\n%",          MSG_EXTRACTION);
+    fRoastBtn      = MakeBtn("Roast Color\nAnalyzer",  MSG_ROAST_COLOR);
 
+    BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
+        .Add(toolbar)
+        .AddGroup(B_HORIZONTAL, kPad)
+            .SetInsets(kPad, kPad, kPad, kPad)
+            .Add(fBrewRatioBtn)
+            .Add(fParticleBtn)
+            .Add(fExtractionBtn)
+            .Add(fRoastBtn)
+            .End();
+
+    ResizeTo(GetLayout()->PreferredSize().width,
+             GetLayout()->PreferredSize().height);
     CenterOnScreen();
 }
 

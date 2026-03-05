@@ -3,9 +3,11 @@
 #include "BrewRatioWindow.h"
 #include "Constants.h"
 
+#include <Application.h>
 #include <LayoutBuilder.h>
 #include <MenuItem.h>
 #include <Message.h>
+#include <shared/ToolBar.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -53,21 +55,27 @@ BrewRatioWindow::BrewRatioWindow()
     fResultView->SetFont(be_bold_font);
     fResultView->SetExplicitAlignment(BAlignment(B_ALIGN_CENTER, B_ALIGN_MIDDLE));
 
-    BLayoutBuilder::Group<>(this, B_VERTICAL, kPad)
-        .SetInsets(kPad*2, kPad*2, kPad*2, kPad*2)
-        .Add(fRatioField)
-        .AddGroup(B_HORIZONTAL, 4)
-            .Add(fCustomRatioLbl)
-            .Add(fCustomRatioCtl)
-            .End()
-        .AddGroup(B_HORIZONTAL, 4)
-            .Add(fWaterLbl)
-            .Add(fWaterCtl)
-            .End()
-        .AddGlue()
-        .Add(fCalcBtn)
-        .AddGlue()
-        .Add(fResultView);
+    BToolBar* toolbar = new BToolBar(B_HORIZONTAL);
+    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About");
+
+    BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
+        .Add(toolbar)
+        .AddGroup(B_VERTICAL, kPad)
+            .SetInsets(kPad*2, kPad*2, kPad*2, kPad*2)
+            .Add(fRatioField)
+            .AddGroup(B_HORIZONTAL, 4)
+                .Add(fCustomRatioLbl)
+                .Add(fCustomRatioCtl)
+                .End()
+            .AddGroup(B_HORIZONTAL, 4)
+                .Add(fWaterLbl)
+                .Add(fWaterCtl)
+                .End()
+            .AddGlue()
+            .Add(fCalcBtn)
+            .AddGlue()
+            .Add(fResultView)
+            .End();
 
     ResizeTo(GetLayout()->PreferredSize().width + 40,
              GetLayout()->PreferredSize().height + 20);

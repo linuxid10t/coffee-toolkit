@@ -3,11 +3,13 @@
 #include "RoastColorWindow.h"
 #include "Constants.h"
 
+#include <Application.h>
 #include <Entry.h>
 #include <InterfaceDefs.h>
 #include <LayoutBuilder.h>
 #include <Message.h>
 #include <Path.h>
+#include <shared/ToolBar.h>
 #include <TranslationUtils.h>
 #include <math.h>
 #include <stdio.h>
@@ -375,25 +377,31 @@ RoastColorWindow::RoastColorWindow()
     fTipsScroll->SetExplicitMinSize(BSize(460, 130));
     fTipsScroll->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 200));
 
-    BLayoutBuilder::Group<>(this, B_VERTICAL, kPad)
-        .SetInsets(kPad*2, kPad*2, kPad*2, kPad*2)
-        .AddGroup(B_HORIZONTAL, kPad)
-            .Add(fOpenBtn)
-            .Add(fFileNameView)
-            .End()
-        .Add(fThumbView)
-        .AddGroup(B_HORIZONTAL, kPad)
-            .Add(fSelHintView)
-            .AddGlue()
-            .Add(fClearSelBtn)
-            .End()
-        .Add(new BStringView("sep1", ""))
-        .Add(new BStringView("gauge_lbl", "Agtron roast scale:"))
-        .Add(fGaugeView)
-        .Add(fAgtronView)
-        .Add(new BStringView("sep2", ""))
-        .Add(new BStringView("tips_lbl", "Roast notes & guidance:"))
-        .Add(fTipsScroll);
+    BToolBar* toolbar = new BToolBar(B_HORIZONTAL);
+    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About");
+
+    BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
+        .Add(toolbar)
+        .AddGroup(B_VERTICAL, kPad)
+            .SetInsets(kPad*2, kPad*2, kPad*2, kPad*2)
+            .AddGroup(B_HORIZONTAL, kPad)
+                .Add(fOpenBtn)
+                .Add(fFileNameView)
+                .End()
+            .Add(fThumbView)
+            .AddGroup(B_HORIZONTAL, kPad)
+                .Add(fSelHintView)
+                .AddGlue()
+                .Add(fClearSelBtn)
+                .End()
+            .Add(new BStringView("sep1", ""))
+            .Add(new BStringView("gauge_lbl", "Agtron roast scale:"))
+            .Add(fGaugeView)
+            .Add(fAgtronView)
+            .Add(new BStringView("sep2", ""))
+            .Add(new BStringView("tips_lbl", "Roast notes & guidance:"))
+            .Add(fTipsScroll)
+            .End();
 
     ResizeTo(GetLayout()->PreferredSize().width  + 40,
              GetLayout()->PreferredSize().height + 40);

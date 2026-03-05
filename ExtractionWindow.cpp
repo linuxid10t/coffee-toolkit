@@ -3,9 +3,11 @@
 #include "ExtractionWindow.h"
 #include "Constants.h"
 
+#include <Application.h>
 #include <InterfaceDefs.h>
 #include <LayoutBuilder.h>
 #include <Message.h>
+#include <shared/ToolBar.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -174,35 +176,41 @@ ExtractionWindow::ExtractionWindow()
     fBrewGroup->AddChild(fPercRadio);
     fBrewGroup->AddChild(fImmsRadio);
 
-    BLayoutBuilder::Group<>(this, B_VERTICAL, kPad)
-        .SetInsets(kPad*2, kPad*2, kPad*2, kPad*2)
-        .Add(new BStringView("lbl_mode", "Measurement input:"))
-        .Add(fMeasureGroup)
-        .AddGroup(B_HORIZONTAL, 4)
-            .Add(fMeasureLbl)
-            .Add(fMeasureCtl)
-            .End()
-        .Add(new BStringView("sep1", ""))
-        .Add(new BStringView("lbl_brew", "Brew type:"))
-        .Add(fBrewGroup)
-        .Add(fStatusView)
-        .Add(new BStringView("sep2", ""))
-        .AddGroup(B_HORIZONTAL, 4)
-            .Add(fLiquidLbl)
-            .Add(fLiquidCtl)
-            .End()
-        .AddGroup(B_HORIZONTAL, 4)
-            .Add(fDoseLbl)
-            .Add(fDoseCtl)
-            .End()
-        .Add(new BStringView("sep3", ""))
-        .Add(fCalcBtn)
-        .Add(new BStringView("sep4", ""))
-        .Add(new BStringView("bar_lbl", "Extraction gauge:"))
-        .Add(fBarView)
-        .Add(new BStringView("sep5", ""))
-        .Add(new BStringView("tips_lbl", "Tips & guidance:"))
-        .Add(fTipsScroll);
+    BToolBar* toolbar = new BToolBar(B_HORIZONTAL);
+    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About");
+
+    BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
+        .Add(toolbar)
+        .AddGroup(B_VERTICAL, kPad)
+            .SetInsets(kPad*2, kPad*2, kPad*2, kPad*2)
+            .Add(new BStringView("lbl_mode", "Measurement input:"))
+            .Add(fMeasureGroup)
+            .AddGroup(B_HORIZONTAL, 4)
+                .Add(fMeasureLbl)
+                .Add(fMeasureCtl)
+                .End()
+            .Add(new BStringView("sep1", ""))
+            .Add(new BStringView("lbl_brew", "Brew type:"))
+            .Add(fBrewGroup)
+            .Add(fStatusView)
+            .Add(new BStringView("sep2", ""))
+            .AddGroup(B_HORIZONTAL, 4)
+                .Add(fLiquidLbl)
+                .Add(fLiquidCtl)
+                .End()
+            .AddGroup(B_HORIZONTAL, 4)
+                .Add(fDoseLbl)
+                .Add(fDoseCtl)
+                .End()
+            .Add(new BStringView("sep3", ""))
+            .Add(fCalcBtn)
+            .Add(new BStringView("sep4", ""))
+            .Add(new BStringView("bar_lbl", "Extraction gauge:"))
+            .Add(fBarView)
+            .Add(new BStringView("sep5", ""))
+            .Add(new BStringView("tips_lbl", "Tips & guidance:"))
+            .Add(fTipsScroll)
+            .End();
 
     ResizeTo(GetLayout()->PreferredSize().width  + 40,
              GetLayout()->PreferredSize().height + 40);

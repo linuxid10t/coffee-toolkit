@@ -1,8 +1,9 @@
 # Makefile – Coffee Toolkit
 
 CXX      = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Wno-unused-parameter
-LIBS     = -lbe -lroot -ltranslation -ltracker
+CXXFLAGS = -std=c++17 -Wall -Wextra -Wno-unused-parameter \
+           -I/boot/system/develop/headers/private
+LIBS     = -lbe -lroot -ltranslation -ltracker -lshared
 TARGET   = coffee_toolkit
 
 SRCS = main.cpp \
