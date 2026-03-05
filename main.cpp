@@ -11,7 +11,7 @@
  *          ExtractionWindow.cpp RoastColorWindow.cpp DetailWindow.cpp \
  *          -lbe -lroot -ltranslation -ltracker -lshared
  *
- *  Author: Yun (Hangzhou)
+ *  Author: David Masson
  */
 
 #include "MainWindow.h"
@@ -22,7 +22,7 @@
 class CoffeeToolkitApp : public BApplication {
 public:
     CoffeeToolkitApp()
-        : BApplication("application/x-vnd.Hangzhou.CoffeeToolkit"),
+        : BApplication("application/x-vnd.DavidMasson.CoffeeToolkit"),
           fMain(nullptr) {}
 
     void ReadyToRun() override {
@@ -32,12 +32,12 @@ public:
 
     void AboutRequested() override {
         BAboutWindow* about = new BAboutWindow(
-            "Coffee Toolkit", "application/x-vnd.Hangzhou.CoffeeToolkit");
+            "Coffee Toolkit", "application/x-vnd.DavidMasson.CoffeeToolkit");
         about->AddDescription(
             "A native Haiku coffee brewing toolkit.\n\n"
             "Tools: Brew Ratio Calculator, Extraction Calculator, "
             "and Roast Color Analyzer.");
-        about->AddCopyright(2025, "Yun (Hangzhou)");
+        about->AddCopyright(2025, "David Masson");
         about->Show();
     }
 

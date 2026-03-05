@@ -96,7 +96,7 @@ Ideal extraction yield ranges (SCAA):
 
 ## Author
 
-Yun (Hangzhou)
+David Masson
 
 ## License
 
