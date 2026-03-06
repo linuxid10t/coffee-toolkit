@@ -164,6 +164,9 @@ bool
 CoffeeSettings::HandleSettingsMessage(BMessage* msg)
 {
     switch (msg->what) {
+        case B_ABOUT_REQUESTED:
+            be_app->PostMessage(B_ABOUT_REQUESTED);
+            return true;
         case MSG_SET_TEMP_CELSIUS:      fCelsius = true;  break;
         case MSG_SET_TEMP_FAHRENHEIT:   fCelsius = false; break;
         case MSG_SET_RATIO_15:          fRatio = 15; break;

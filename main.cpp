@@ -38,6 +38,7 @@ public:
             "Tools: Brew Ratio Calculator, Extraction Calculator, "
             "and Roast Color Analyzer.");
         about->AddCopyright(2025, "David Masson");
+        about->SetLook(B_TITLED_WINDOW_LOOK);
         about->Show();
     }
 
