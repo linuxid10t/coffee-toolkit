@@ -6,8 +6,10 @@
 #include <Application.h>
 #include <InterfaceDefs.h>
 #include <LayoutBuilder.h>
+#include <Menu.h>
+#include <MenuBar.h>
+#include <MenuItem.h>
 #include <Message.h>
-#include <shared/ToolBar.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -176,11 +178,14 @@ ExtractionWindow::ExtractionWindow()
     fBrewGroup->AddChild(fPercRadio);
     fBrewGroup->AddChild(fImmsRadio);
 
-    BToolBar* toolbar = new BToolBar(B_HORIZONTAL);
-    toolbar->AddAction(B_ABOUT_REQUESTED, be_app, nullptr, "About", "About");
+    BMenuBar* menuBar = new BMenuBar("menubar");
+    BMenu* helpMenu = new BMenu("Help");
+    helpMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
+                                   new BMessage(B_ABOUT_REQUESTED)));
+    menuBar->AddItem(helpMenu);
 
     BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
-        .Add(toolbar)
+        .Add(menuBar)
         .AddGroup(B_VERTICAL, kPad)
             .SetInsets(kPad*2, kPad*2, kPad*2, kPad*2)
             .Add(new BStringView("lbl_mode", "Measurement input:"))

@@ -7,7 +7,6 @@
 
 #include <Window.h>
 #include <Button.h>
-#include <shared/ToolBar.h>
 
 class MainWindow : public BWindow {
 public:
