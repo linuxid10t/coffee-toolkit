@@ -13,6 +13,7 @@
 #include <FilePanel.h>
 #include <GroupView.h>
 #include <Messenger.h>
+#include <MenuField.h>
 #include <PopUpMenu.h>
 #include <RadioButton.h>
 #include <Rect.h>
@@ -107,6 +108,13 @@ private:
     // ---- Mode 3: Calibrated Sheet ----
     void  LoadCalImage(const entry_ref& ref);
     void  AnalyseCal();
+    void  UpdateCalSubMethod();
+    void  RunCalibrate();
+    float DetectCirclePxMm(BBitmap* bmp, BRect normSel, float diamMm);
+    float DetectLinesPxMm(BBitmap* bmp, BRect normSel, float spacingMm);
+
+    // ---- Unit display ----
+    void UpdateUnits();
 
     // ---- Shared thumbnail helper ----
     BBitmap* ScaleBitmap(BBitmap* src, int tw, int th);
@@ -164,7 +172,13 @@ private:
     BStringView*      fCalHintView;
     BBitmap*          fCalSource;
     BBitmap*          fCalThumbBmp;
-    BTextControl*     fCalPxPerMmCtl;
+    BRadioButton*     fCalSubCircle;
+    BRadioButton*     fCalSubLines;
+    BGroupView*       fCalSubRadioGrp;
+    BTextControl*     fCalRefSizeCtl;
+    BButton*          fCalCalibrateBtn;
+    BStringView*      fCalPxMmLabel;
+    float             fDerivedPxPerMm;
     BButton*          fCalAnalyseBtn;
     CalHistView*      fCalHist;
     BStringView*      fCalResultView;

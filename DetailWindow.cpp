@@ -303,18 +303,21 @@ void CalHistView::Draw(BRect /*updateRect*/)
         StrokeRect(BRect(bx, by, bxe, bye));
     }
 
-    // X-axis tick labels every 0.5 mm
+    // X-axis tick labels every 0.5 mm (or equivalent in inches)
+    bool metric = CoffeeSettings::Get()->UseMetric();
     SetHighColor(60, 60, 60);
     for (int i = 0; i <= nBins; i += 5) {
         float x = margin + i * bw;
         StrokeLine(BPoint(x, b.Height()-20.0f),
                    BPoint(x, b.Height()-16.0f));
-        char lbl[8]; snprintf(lbl, sizeof(lbl), "%.1f", i * binW);
-        DrawString(lbl, BPoint(x-6, b.Height()-6));
+        float val = metric ? (i * binW) : (i * binW / 25.4f);
+        char lbl[10];
+        snprintf(lbl, sizeof(lbl), metric ? "%.1f" : "%.3f", val);
+        DrawString(lbl, BPoint(x-8, b.Height()-6));
     }
 
-    // "mm" unit label
-    DrawString("mm", BPoint(b.Width()-26, b.Height()-6));
+    // Unit label
+    DrawString(metric ? "mm" : "in", BPoint(b.Width()-22, b.Height()-6));
 }
 
 // ===================================================================
@@ -596,10 +599,28 @@ DetailWindow::DetailWindow()
                                new BMessage(MSG_CLEAR_SELECTION));
     fCalClearBtn->SetEnabled(false);
 
-    fCalPxPerMmCtl = new BTextControl("cal_pxmm",
-                                      "Pixels per mm:",
-                                      "10.0", nullptr);
-    fCalPxPerMmCtl->SetModificationMessage(nullptr);
+    fCalSubCircle = new BRadioButton("cal_circ", "Circle Reference",
+                                     new BMessage(MSG_CAL_SUB_CIRCLE));
+    fCalSubLines  = new BRadioButton("cal_lns",  "Notebook Lines",
+                                     new BMessage(MSG_CAL_SUB_LINES));
+    fCalSubCircle->SetValue(B_CONTROL_ON);
+
+    fCalSubRadioGrp = new BGroupView(B_HORIZONTAL, kPad);
+    fCalSubRadioGrp->AddChild(fCalSubCircle);
+    fCalSubRadioGrp->AddChild(fCalSubLines);
+
+    fCalRefSizeCtl = new BTextControl("cal_ref", "Circle diameter (mm):",
+                                      "50.0", nullptr);
+    fCalRefSizeCtl->SetModificationMessage(nullptr);
+
+    fCalCalibrateBtn = new BButton("cal_cal", "Calibrate from Selection",
+                                   new BMessage(MSG_CAL_CALIBRATE));
+    fCalCalibrateBtn->SetEnabled(false);
+
+    fCalPxMmLabel = new BStringView("cal_pxmm_lbl", "Calibration: not set");
+    fCalPxMmLabel->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+
+    fDerivedPxPerMm = 0.0f;
 
     fCalAnalyseBtn = new BButton("cal_analyse", "Analyse",
                                  new BMessage(MSG_CAL_ANALYSE));
@@ -627,8 +648,14 @@ DetailWindow::DetailWindow()
             .Add(fCalClearBtn)
             .End()
         .Add(new BStringView("cal_sep1", ""))
+        .Add(fCalSubRadioGrp)
         .AddGroup(B_HORIZONTAL, kPad)
-            .Add(fCalPxPerMmCtl)
+            .Add(fCalRefSizeCtl)
+            .AddGlue()
+            .Add(fCalCalibrateBtn)
+            .End()
+        .Add(fCalPxMmLabel)
+        .AddGroup(B_HORIZONTAL, kPad)
             .AddGlue()
             .Add(fCalAnalyseBtn)
             .End()
@@ -677,18 +704,13 @@ DetailWindow::~DetailWindow()
 void DetailWindow::SwitchMode(int mode)
 {
     fMode = mode;
-    if (mode == kModePhoto) {
-        fPhotoPanel->Show();
-        fSievePanel->Hide();
-        fCalPanel->Hide();
-    } else if (mode == kModeSieve) {
-        fPhotoPanel->Hide();
-        fSievePanel->Show();
-        fCalPanel->Hide();
-    } else {
-        fPhotoPanel->Hide();
-        fSievePanel->Hide();
-        fCalPanel->Show();
+    BGroupView* panels[] = { fPhotoPanel, fSievePanel, fCalPanel };
+    for (int i = 0; i < 3; i++) {
+        bool shouldShow = (i == mode);
+        if (shouldShow && panels[i]->IsHidden())
+            panels[i]->Show();
+        else if (!shouldShow && !panels[i]->IsHidden())
+            panels[i]->Hide();
     }
 }
 
@@ -1035,18 +1057,21 @@ void DetailWindow::LoadCalImage(const entry_ref& ref)
 
     ((ThumbView*)fCalThumb)->SetBitmap(fCalThumbBmp);
     fCalClearBtn->SetEnabled(false);
-    fCalAnalyseBtn->SetEnabled(true);
+    fCalCalibrateBtn->SetEnabled(true);
+    fDerivedPxPerMm = 0.0f;
+    fCalPxMmLabel->SetText("Calibration: not set");
+    fCalAnalyseBtn->SetEnabled(false);
 }
 
 void DetailWindow::AnalyseCal()
 {
     if (!fCalSource || !fCalSource->IsValid()) return;
 
-    float pxPerMm = atof(fCalPxPerMmCtl->Text());
-    if (pxPerMm <= 0.0f) {
-        fCalResultView->SetText("Error: invalid px/mm value.");
+    if (fDerivedPxPerMm <= 0.0f) {
+        fCalResultView->SetText("Calibrate first using the sub-method above.");
         return;
     }
+    float pxPerMm = fDerivedPxPerMm;
 
     BRect bounds = fCalSource->Bounds();
     int   w   = (int)(bounds.Width()  + 1);
@@ -1134,14 +1159,216 @@ void DetailWindow::AnalyseCal()
     float d50 = diameters[n/2];
     float d90 = diameters[(int)(n * 0.90f)];
 
+    bool metric = CoffeeSettings::Get()->UseMetric();
+    const char* unit = metric ? "mm" : "in";
+    float displayD50 = metric ? d50 : d50 / 25.4f;
+    float displayD90 = metric ? d90 : d90 / 25.4f;
     char buf[192];
     snprintf(buf, sizeof(buf),
-             "D50: %.2f mm  |  D90: %.2f mm  |  %d particles",
-             d50, d90, n);
+             "D50: %.3f %s  |  D90: %.3f %s  |  %d particles",
+             displayD50, unit, displayD90, unit, n);
     fCalResultView->SetText(buf);
 }
 
+void DetailWindow::UpdateCalSubMethod()
+{
+    bool isCircle = (fCalSubCircle->Value() == B_CONTROL_ON);
+    const char* unit = CoffeeSettings::Get()->UseMetric() ? "mm" : "in";
+    char lbl[64];
+    snprintf(lbl, sizeof(lbl), "%s (%s):",
+        isCircle ? "Circle diameter" : "Line spacing", unit);
+    fCalRefSizeCtl->SetLabel(lbl);
+    fDerivedPxPerMm = 0.0f;
+    fCalPxMmLabel->SetText("Calibration: not set");
+    fCalAnalyseBtn->SetEnabled(false);
+}
+
+void DetailWindow::RunCalibrate()
+{
+    if (!fCalSource || !fCalSource->IsValid()) return;
+
+    float refSize = atof(fCalRefSizeCtl->Text());
+    if (refSize <= 0.0f) {
+        fCalPxMmLabel->SetText("Error: invalid reference size.");
+        return;
+    }
+
+    // Internal calibration is always px/mm; convert inches input if needed
+    bool metric = CoffeeSettings::Get()->UseMetric();
+    float refSizeMm = metric ? refSize : refSize * 25.4f;
+
+    ThumbView* tv = (ThumbView*)fCalThumb;
+    BRect normSel(0.0f, 0.0f, 1.0f, 1.0f);
+    if (tv->HasSelection())
+        normSel = tv->NormalisedSelection();
+
+    bool isCircle = (fCalSubCircle->Value() == B_CONTROL_ON);
+    float pxmm = isCircle
+        ? DetectCirclePxMm(fCalSource, normSel, refSizeMm)
+        : DetectLinesPxMm(fCalSource, normSel, refSizeMm);
+
+    if (pxmm <= 0.0f) {
+        fCalPxMmLabel->SetText(isCircle
+            ? "Detection failed — select a region containing the circle."
+            : "Detection failed — select a region with clear horizontal lines.");
+        return;
+    }
+
+    fDerivedPxPerMm = pxmm;
+    char buf[64];
+    snprintf(buf, sizeof(buf), "Calibration: %.2f px/mm", fDerivedPxPerMm);
+    fCalPxMmLabel->SetText(buf);
+    fCalAnalyseBtn->SetEnabled(true);
+}
+
+float DetailWindow::DetectCirclePxMm(BBitmap* bmp, BRect normSel, float diamMm)
+{
+    if (!bmp || !bmp->IsValid()) return 0.0f;
+
+    BRect bounds = bmp->Bounds();
+    int w   = (int)(bounds.Width()  + 1);
+    int h   = (int)(bounds.Height() + 1);
+    int bpr = bmp->BytesPerRow();
+    color_space cs = bmp->ColorSpace();
+    const uint8* bits = (const uint8*)bmp->Bits();
+
+    int x0 = (int)(normSel.left   * w);
+    int y0 = (int)(normSel.top    * h);
+    int x1 = (int)(normSel.right  * w);
+    int y1 = (int)(normSel.bottom * h);
+    if (x0 < 0) x0 = 0; if (x1 > w) x1 = w;
+    if (y0 < 0) y0 = 0; if (y1 > h) y1 = h;
+
+    int rw = x1 - x0, rh = y1 - y0;
+    if (rw <= 0 || rh <= 0) return 0.0f;
+
+    std::vector<bool> visited(rw * rh, false);
+    auto idx = [&](int x, int y) { return (y - y0)*rw + (x - x0); };
+
+    int maxArea = 0;
+
+    for (int gy = y0; gy < y1; gy++) {
+        for (int gx = x0; gx < x1; gx++) {
+            if (visited[idx(gx, gy)]) continue;
+            float L = pixelLuminance(bits, bpr, cs, gx, gy);
+            if (L < 0.7f) { visited[idx(gx, gy)] = true; continue; }
+
+            std::stack<std::pair<int,int>> stk;
+            stk.push({gx, gy});
+            visited[idx(gx, gy)] = true;
+            int area = 0;
+
+            while (!stk.empty()) {
+                auto [cx, cy] = stk.top(); stk.pop();
+                area++;
+                const int dx4[] = {1,-1,0,0};
+                const int dy4[] = {0,0,1,-1};
+                for (int d = 0; d < 4; d++) {
+                    int nx = cx + dx4[d];
+                    int ny = cy + dy4[d];
+                    if (nx < x0 || nx >= x1 || ny < y0 || ny >= y1) continue;
+                    if (visited[idx(nx, ny)]) continue;
+                    visited[idx(nx, ny)] = true;
+                    if (pixelLuminance(bits, bpr, cs, nx, ny) >= 0.7f)
+                        stk.push({nx, ny});
+                }
+            }
+
+            if (area > maxArea) maxArea = area;
+        }
+    }
+
+    if (maxArea <= 0) return 0.0f;
+    float diam_px = 2.0f * sqrtf((float)maxArea / 3.14159f);
+    return diam_px / diamMm;
+}
+
+float DetailWindow::DetectLinesPxMm(BBitmap* bmp, BRect normSel, float spacingMm)
+{
+    if (!bmp || !bmp->IsValid()) return 0.0f;
+
+    BRect bounds = bmp->Bounds();
+    int w   = (int)(bounds.Width()  + 1);
+    int h   = (int)(bounds.Height() + 1);
+    int bpr = bmp->BytesPerRow();
+    color_space cs = bmp->ColorSpace();
+    const uint8* bits = (const uint8*)bmp->Bits();
+
+    int x0 = (int)(normSel.left   * w);
+    int y0 = (int)(normSel.top    * h);
+    int x1 = (int)(normSel.right  * w);
+    int y1 = (int)(normSel.bottom * h);
+    if (x0 < 0) x0 = 0; if (x1 > w) x1 = w;
+    if (y0 < 0) y0 = 0; if (y1 > h) y1 = h;
+
+    int rw = x1 - x0, rh = y1 - y0;
+    if (rw <= 0 || rh <= 0) return 0.0f;
+
+    // Per-row average luminance
+    std::vector<float> rowLum(rh, 0.0f);
+    for (int gy = y0; gy < y1; gy++) {
+        float sum = 0.0f;
+        for (int gx = x0; gx < x1; gx++)
+            sum += pixelLuminance(bits, bpr, cs, gx, gy);
+        rowLum[gy - y0] = sum / rw;
+    }
+
+    // 5-row moving average smooth
+    std::vector<float> smooth(rh, 0.0f);
+    for (int i = 0; i < rh; i++) {
+        float s = 0.0f; int cnt = 0;
+        for (int j = std::max(0, i-2); j <= std::min(rh-1, i+2); j++) {
+            s += rowLum[j]; cnt++;
+        }
+        smooth[i] = s / cnt;
+    }
+
+    // Global mean
+    float gmean = 0.0f;
+    for (float v : smooth) gmean += v;
+    gmean /= rh;
+
+    // Local maxima above global mean
+    std::vector<int> peaks;
+    for (int i = 1; i < rh - 1; i++) {
+        if (smooth[i] > smooth[i-1] && smooth[i] > smooth[i+1] && smooth[i] > gmean)
+            peaks.push_back(i);
+    }
+
+    if ((int)peaks.size() < 2) return 0.0f;
+
+    float totalSpacing = 0.0f;
+    for (int i = 1; i < (int)peaks.size(); i++)
+        totalSpacing += peaks[i] - peaks[i-1];
+    float avgSpacing = totalSpacing / ((int)peaks.size() - 1);
+
+    return avgSpacing / spacingMm;
+}
+
 // ===================================================================
+// UpdateUnits
+// Called when the mm/inches setting changes.  Updates all unit-dependent
+// labels in Mode 3 (Calibrated Sheet) and redraws the histogram.
+
+void DetailWindow::UpdateUnits()
+{
+    const char* unit = CoffeeSettings::Get()->UseMetric() ? "mm" : "in";
+
+    // Histogram panel label (static view found by name)
+    BStringView* histLbl = (BStringView*)FindView("cal_hlbl");
+    if (histLbl) {
+        char lbl[64];
+        snprintf(lbl, sizeof(lbl), "Particle diameter histogram (%s):", unit);
+        histLbl->SetText(lbl);
+    }
+
+    // Calibration reference-size label and reset calibration state,
+    // since the stored px/mm was derived from a value in the old unit.
+    UpdateCalSubMethod();
+    fCalResultView->SetText("");
+    fCalHist->Invalidate();
+}
+
 // MessageReceived
 // ===================================================================
 
@@ -1248,6 +1475,13 @@ void DetailWindow::MessageReceived(BMessage* msg)
                 LoadCalImage(ref);
             break;
         }
+        case MSG_CAL_SUB_CIRCLE:
+        case MSG_CAL_SUB_LINES:
+            UpdateCalSubMethod();
+            break;
+        case MSG_CAL_CALIBRATE:
+            RunCalibrate();
+            break;
         case MSG_CAL_ANALYSE:
             AnalyseCal();
             break;
@@ -1279,6 +1513,12 @@ void DetailWindow::MessageReceived(BMessage* msg)
             }
             break;
         }
+
+        case MSG_SET_UNIT_MM:
+        case MSG_SET_UNIT_INCHES:
+            if (CoffeeSettings::Get()->HandleSettingsMessage(msg))
+                UpdateUnits();
+            break;
 
         default:
             if (CoffeeSettings::Get()->HandleSettingsMessage(msg))

@@ -20,6 +20,7 @@ CoffeeSettings* CoffeeSettings::sInstance = nullptr;
 
 CoffeeSettings::CoffeeSettings()
     : fCelsius(true),
+      fMetric(true),
       fRatio(15),
       fTheme(0)
 {
@@ -55,6 +56,10 @@ CoffeeSettings::Load()
     if (archive.FindBool("celsius", &celsius) == B_OK)
         fCelsius = celsius;
 
+    bool metric;
+    if (archive.FindBool("metric", &metric) == B_OK)
+        fMetric = metric;
+
     int32 ratio;
     if (archive.FindInt32("ratio", &ratio) == B_OK
         && ratio >= 15 && ratio <= 18)
@@ -84,6 +89,7 @@ CoffeeSettings::Save()
 
     BMessage archive;
     archive.AddBool("celsius", fCelsius);
+    archive.AddBool("metric", fMetric);
     archive.AddInt32("ratio", fRatio);
     archive.AddInt32("theme", fTheme);
     archive.AddString("language", fLanguage);
@@ -157,6 +163,19 @@ CoffeeSettings::BuildSettingsMenu(BMenuBar* menuBar)
     }
     settingsMenu->AddItem(langMenu);
 
+    // Measurement Units submenu
+    BMenu* unitsMenu = new BMenu("Measurement Units");
+    unitsMenu->SetRadioMode(true);
+    BMenuItem* mm      = new BMenuItem("Millimetres (mm)",
+        new BMessage(MSG_SET_UNIT_MM));
+    BMenuItem* inches  = new BMenuItem("Inches (in)",
+        new BMessage(MSG_SET_UNIT_INCHES));
+    mm->SetMarked(s->fMetric);
+    inches->SetMarked(!s->fMetric);
+    unitsMenu->AddItem(mm);
+    unitsMenu->AddItem(inches);
+    settingsMenu->AddItem(unitsMenu);
+
     menuBar->AddItem(settingsMenu, 0);
 }
 
@@ -167,6 +186,8 @@ CoffeeSettings::HandleSettingsMessage(BMessage* msg)
         case B_ABOUT_REQUESTED:
             be_app->PostMessage(B_ABOUT_REQUESTED);
             return true;
+        case MSG_SET_UNIT_MM:           fMetric = true;  break;
+        case MSG_SET_UNIT_INCHES:       fMetric = false; break;
         case MSG_SET_TEMP_CELSIUS:      fCelsius = true;  break;
         case MSG_SET_TEMP_FAHRENHEIT:   fCelsius = false; break;
         case MSG_SET_RATIO_15:          fRatio = 15; break;
@@ -227,6 +248,12 @@ CoffeeSettings::SyncAllWindows()
                     for (int32 l = 0; l < langMenu->CountItems(); l++)
                         langMenu->ItemAt(l)->SetMarked(
                             strcmp(fLanguage, codes[l]) == 0);
+                }
+                // Units (submenu index 4)
+                BMenu* unitsMenu = settingsMenu->SubmenuAt(4);
+                if (unitsMenu) {
+                    unitsMenu->ItemAt(0)->SetMarked(fMetric);
+                    unitsMenu->ItemAt(1)->SetMarked(!fMetric);
                 }
             }
         }

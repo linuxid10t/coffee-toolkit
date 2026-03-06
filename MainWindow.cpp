@@ -68,7 +68,7 @@ void MainWindow::MessageReceived(BMessage* msg)
             (new ExtractionWindow())->Show();
             break;
         case MSG_PARTICLE:
-            (new DetailWindow("Particle Analyzer"))->Show();
+            (new DetailWindow())->Show();
             break;
         case MSG_ROAST_COLOR:
             (new RoastColorWindow())->Show();

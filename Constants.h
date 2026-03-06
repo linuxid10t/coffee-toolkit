@@ -53,10 +53,15 @@ const uint32 MSG_SIEVE_RESET      = 'PSRS';
 const uint32 MSG_CAL_OPEN         = 'PCOP';
 const uint32 MSG_CAL_REFS         = 'PCRF';
 const uint32 MSG_CAL_ANALYSE      = 'PCAL';
+const uint32 MSG_CAL_SUB_CIRCLE   = 'PCSC';   // radio: circle sub-method
+const uint32 MSG_CAL_SUB_LINES    = 'PCSL';   // radio: lines sub-method
+const uint32 MSG_CAL_CALIBRATE    = 'PCCB';   // "Calibrate" button clicked
 
 // -------------------------------------------------------
 // Settings menu messages
 // -------------------------------------------------------
+const uint32 MSG_SET_UNIT_MM          = 'SUMM';
+const uint32 MSG_SET_UNIT_INCHES      = 'SUIN';
 const uint32 MSG_SET_TEMP_CELSIUS     = 'STC ';
 const uint32 MSG_SET_TEMP_FAHRENHEIT  = 'STF ';
 const uint32 MSG_SET_RATIO_15         = 'SR15';
