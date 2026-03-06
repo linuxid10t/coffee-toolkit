@@ -63,6 +63,18 @@ thresholds the image and flood-fills connected components to measure each
 particle blob; effective diameter = 2·√(area/π). Results shown as a
 particle-diameter histogram with D50, D90, and particle count.
 
+## Settings System
+
+Persistent settings are managed by the `CoffeeSettings` singleton
+(`Settings.h/.cpp`). On first run, the language is auto-detected from
+the OS locale via `BLocaleRoster`, falling back to English if the system
+language is not among the supported set (en, es, fr, de, ja). Saved
+settings always take precedence once a settings file exists.
+
+Settings are synchronised across all open windows via `SyncAllWindows()`,
+which walks `be_app->WindowAt()` and updates every Settings submenu in
+place.
+
 ## Key UI Decisions Made During Development
 
 - Fixed-width `BStringView` labels (110px) paired with no-label
@@ -73,8 +85,8 @@ particle-diameter histogram with D50, D90, and particle count.
   combination (e.g. "Mode: TDS | Percolation (ideal 18-22%)")
 - Analyse button removed from RoastColorWindow in favour of fully
   automatic reactive analysis (fires on load and on selection change)
-- Thumbnail enlarged from 160×120 to 320×240 to make drag selection
-  practical for the user
+- Thumbnails are 240×180 — large enough for drag selection without
+  pushing the window height above 600 px on smaller screens
 
 ## Build
 
@@ -87,8 +99,8 @@ Or manually:
 ```bash
 g++ -std=c++17 -o coffee_toolkit \
     main.cpp MainWindow.cpp BrewRatioWindow.cpp \
-    ExtractionWindow.cpp RoastColorWindow.cpp DetailWindow.cpp \
-    -lbe -lroot -ltranslation -ltracker
+    ExtractionWindow.cpp RoastColorWindow.cpp DetailWindow.cpp Settings.cpp \
+    -lbe -lroot -ltranslation -ltracker -lshared
 ```
 
 ## File Structure
@@ -100,7 +112,8 @@ MainWindow.h/.cpp        Four-button launcher window
 BrewRatioWindow.h/.cpp   Brew ratio calculator
 ExtractionWindow.h/.cpp  Extraction calculator + ExtractionBarView gauge
 RoastColorWindow.h/.cpp  Roast analyzer + RoastGaugeView + ThumbView
-DetailWindow.h/.cpp      Placeholder (future Particle Analyzer)
+DetailWindow.h/.cpp      Particle analyzer (Photo / Sieve / Calibrated modes)
+Settings.h/.cpp          Persistent settings singleton + cross-window sync
 toolkit.png              Application icon (toolbox illustration)
 Makefile
 ```
