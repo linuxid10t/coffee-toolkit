@@ -2,6 +2,7 @@
 
 #include "DetailWindow.h"
 #include "Constants.h"
+#include "Settings.h"
 
 #include <Application.h>
 #include <InterfaceDefs.h>
@@ -25,6 +26,7 @@ DetailWindow::DetailWindow(const char* title)
     helpMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
                                    new BMessage(B_ABOUT_REQUESTED)));
     menuBar->AddItem(helpMenu);
+    CoffeeSettings::BuildSettingsMenu(menuBar);
 
     BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
         .Add(menuBar)
@@ -42,5 +44,7 @@ DetailWindow::DetailWindow(const char* title)
 
 void DetailWindow::MessageReceived(BMessage* msg)
 {
+    if (CoffeeSettings::Get()->HandleSettingsMessage(msg))
+        return;
     BWindow::MessageReceived(msg);
 }

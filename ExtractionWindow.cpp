@@ -2,6 +2,7 @@
 
 #include "ExtractionWindow.h"
 #include "Constants.h"
+#include "Settings.h"
 
 #include <Application.h>
 #include <InterfaceDefs.h>
@@ -183,6 +184,7 @@ ExtractionWindow::ExtractionWindow()
     helpMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
                                    new BMessage(B_ABOUT_REQUESTED)));
     menuBar->AddItem(helpMenu);
+    CoffeeSettings::BuildSettingsMenu(menuBar);
 
     BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
         .Add(menuBar)
@@ -339,6 +341,8 @@ void ExtractionWindow::MessageReceived(BMessage* msg)
             Calculate();
             break;
         default:
+            if (CoffeeSettings::Get()->HandleSettingsMessage(msg))
+                break;
             BWindow::MessageReceived(msg);
     }
 }

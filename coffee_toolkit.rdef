@@ -1,16 +1,15 @@
-/* coffee_toolkit.rdef – Resource definition for Coffee Toolkit
- *
- * Defines the application icon and metadata.
- */
+/* coffee_toolkit.rdef – Resource definition for Coffee Toolkit */
 
-resource(1, "BEOS:APP_ICON") #'ICON' {
-    bitmap data("toolkit.png")
-};
+resource(1, "BEOS:APP_ICON") #'VICN' import "toolkit.png";
 
-resource(1, "BEOS:APPVERSION") appVersion {
-    version = 1, 0, 0, 0,
-    short = "1.0",
-    long = "Coffee Toolkit 1.0"
+resource app_version {
+    major = 1,
+    middle = 0,
+    minor = 0,
+    variety = 0,
+    internal = 0,
+    short_info = "1.0",
+    long_info = "Coffee Toolkit 1.0"
 };
 
 resource(1, "BEOS:APP_SIG") "application/x-vnd.DavidMasson.CoffeeToolkit";

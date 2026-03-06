@@ -14,7 +14,8 @@ SRCS = main.cpp \
        BrewRatioWindow.cpp \
        ExtractionWindow.cpp \
        RoastColorWindow.cpp \
-       DetailWindow.cpp
+       DetailWindow.cpp \
+       Settings.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
@@ -34,13 +35,14 @@ $(RSRC): $(RDEF)
 
 # Header dependencies
 main.o:              main.cpp MainWindow.h
-MainWindow.o:        MainWindow.cpp MainWindow.h Constants.h \
+MainWindow.o:        MainWindow.cpp MainWindow.h Constants.h Settings.h \
                      BrewRatioWindow.h ExtractionWindow.h \
                      RoastColorWindow.h DetailWindow.h
-BrewRatioWindow.o:   BrewRatioWindow.cpp BrewRatioWindow.h Constants.h
-ExtractionWindow.o:  ExtractionWindow.cpp ExtractionWindow.h Constants.h
-RoastColorWindow.o:  RoastColorWindow.cpp RoastColorWindow.h Constants.h
-DetailWindow.o:      DetailWindow.cpp DetailWindow.h Constants.h
+BrewRatioWindow.o:   BrewRatioWindow.cpp BrewRatioWindow.h Constants.h Settings.h
+ExtractionWindow.o:  ExtractionWindow.cpp ExtractionWindow.h Constants.h Settings.h
+RoastColorWindow.o:  RoastColorWindow.cpp RoastColorWindow.h Constants.h Settings.h
+DetailWindow.o:      DetailWindow.cpp DetailWindow.h Constants.h Settings.h
+Settings.o:          Settings.cpp Settings.h Constants.h
 
 clean:
 	rm -f $(OBJS) $(TARGET) $(RSRC)

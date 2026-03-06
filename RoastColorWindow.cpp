@@ -2,6 +2,7 @@
 
 #include "RoastColorWindow.h"
 #include "Constants.h"
+#include "Settings.h"
 
 #include <Application.h>
 #include <Entry.h>
@@ -384,6 +385,7 @@ RoastColorWindow::RoastColorWindow()
     helpMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
                                    new BMessage(B_ABOUT_REQUESTED)));
     menuBar->AddItem(helpMenu);
+    CoffeeSettings::BuildSettingsMenu(menuBar);
 
     BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
         .Add(menuBar)
@@ -659,6 +661,8 @@ void RoastColorWindow::MessageReceived(BMessage* msg)
             break;
         }
         default:
+            if (CoffeeSettings::Get()->HandleSettingsMessage(msg))
+                break;
             BWindow::MessageReceived(msg);
     }
 }

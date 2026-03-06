@@ -39,6 +39,24 @@ const uint32 MSG_SELECTION_CHANGED = 'RSEL';
 const uint32 MSG_CLEAR_SELECTION   = 'RCLS';
 
 // -------------------------------------------------------
+// Settings menu messages
+// -------------------------------------------------------
+const uint32 MSG_SET_TEMP_CELSIUS     = 'STC ';
+const uint32 MSG_SET_TEMP_FAHRENHEIT  = 'STF ';
+const uint32 MSG_SET_RATIO_15         = 'SR15';
+const uint32 MSG_SET_RATIO_16         = 'SR16';
+const uint32 MSG_SET_RATIO_17         = 'SR17';
+const uint32 MSG_SET_RATIO_18         = 'SR18';
+const uint32 MSG_SET_THEME_SYSTEM     = 'STS ';
+const uint32 MSG_SET_THEME_LIGHT      = 'STL ';
+const uint32 MSG_SET_THEME_DARK       = 'STD ';
+const uint32 MSG_SET_LANG_EN          = 'SLEN';
+const uint32 MSG_SET_LANG_ES          = 'SLES';
+const uint32 MSG_SET_LANG_FR          = 'SLFR';
+const uint32 MSG_SET_LANG_DE          = 'SLDE';
+const uint32 MSG_SET_LANG_JA          = 'SLJA';
+
+// -------------------------------------------------------
 // Layout constants (shared across all windows)
 // -------------------------------------------------------
 static const int kBtnW = 140;   // main-window button width

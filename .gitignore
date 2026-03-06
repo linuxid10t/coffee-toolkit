@@ -1,0 +1,4 @@
+*.o
+coffee_toolkit
+coffee_toolkit.rsrc
+.claude/

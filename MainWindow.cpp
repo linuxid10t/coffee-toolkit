@@ -2,6 +2,7 @@
 
 #include "MainWindow.h"
 #include "Constants.h"
+#include "Settings.h"
 #include "BrewRatioWindow.h"
 #include "ExtractionWindow.h"
 #include "RoastColorWindow.h"
@@ -28,6 +29,7 @@ MainWindow::MainWindow()
     helpMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
                                    new BMessage(B_ABOUT_REQUESTED)));
     menuBar->AddItem(helpMenu);
+    CoffeeSettings::BuildSettingsMenu(menuBar);
 
     auto MakeBtn = [&](const char* label, uint32 cmd) -> BButton* {
         BButton* btn = new BButton("btn", label, new BMessage(cmd));
@@ -72,6 +74,8 @@ void MainWindow::MessageReceived(BMessage* msg)
             (new RoastColorWindow())->Show();
             break;
         default:
+            if (CoffeeSettings::Get()->HandleSettingsMessage(msg))
+                break;
             BWindow::MessageReceived(msg);
     }
 }
