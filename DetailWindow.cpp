@@ -131,7 +131,6 @@ void ParticleGaugeView::Draw(BRect /*updateRect*/)
     // Scale ticks
     BFont small; small.SetSize(9.0f); SetFont(&small);
     SetHighColor(60, 60, 60);
-    const char* tickLabels[] = { "XF", "F", "MF", "M", "MC", "C", "XC" };
     for (int i = 0; i <= kNBands; i++) {
         float s = (float)i / kNBands;
         float x = scoreToX(s);
@@ -378,19 +377,6 @@ BBitmap* DetailWindow::ScaleBitmap(BBitmap* src, int tw, int th)
     return dst;
 }
 
-// Compute a 0..1 normalised ThumbView region from a BMessage
-// (or return invalid rect to use centre crop)
-static BRect normSelFromMsg(const BMessage* msg)
-{
-    if (!msg) return BRect();
-    float x0, y0, x1, y1;
-    if (msg->FindFloat("x0", &x0) != B_OK) return BRect();
-    msg->FindFloat("y0", &y0);
-    msg->FindFloat("x1", &x1);
-    msg->FindFloat("y1", &y1);
-    return BRect(x0, y0, x1, y1);
-}
-
 // ===================================================================
 // DetailWindow — constructor
 // ===================================================================
@@ -441,9 +427,9 @@ DetailWindow::DetailWindow()
     fPhotoFileView->SetExplicitAlignment(
         BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
-    ThumbView* phThumb = new ThumbView(BRect(0, 0, 319, 239), me);
-    phThumb->SetExplicitMinSize(BSize(320, 240));
-    phThumb->SetExplicitMaxSize(BSize(320, 240));
+    ThumbView* phThumb = new ThumbView(BRect(0, 0, 239, 179), me);
+    phThumb->SetExplicitMinSize(BSize(240, 180));
+    phThumb->SetExplicitMaxSize(BSize(240, 180));
     fPhotoThumb = phThumb;
 
     fPhotoHintView = new BStringView("ph_hint",
@@ -456,9 +442,9 @@ DetailWindow::DetailWindow()
                                  new BMessage(MSG_CLEAR_SELECTION));
     fPhotoClearBtn->SetEnabled(false);
 
-    fPhotoGauge = new ParticleGaugeView(BRect(0, 0, 460, 70));
-    fPhotoGauge->SetExplicitMinSize(BSize(460, 70));
-    fPhotoGauge->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 70));
+    fPhotoGauge = new ParticleGaugeView(BRect(0, 0, 460, 55));
+    fPhotoGauge->SetExplicitMinSize(BSize(460, 55));
+    fPhotoGauge->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 55));
 
     fPhotoResultView = new BStringView("ph_result", "");
     fPhotoResultView->SetFont(be_bold_font);
@@ -483,8 +469,8 @@ DetailWindow::DetailWindow()
         "Drag a rectangle on the preview to sample a specific region.");
     fPhotoTipsScroll = new BScrollView("ph_tips_scroll", fPhotoTipsView,
                                        B_FOLLOW_ALL, 0, false, true);
-    fPhotoTipsScroll->SetExplicitMinSize(BSize(460, 110));
-    fPhotoTipsScroll->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 180));
+    fPhotoTipsScroll->SetExplicitMinSize(BSize(460, 75));
+    fPhotoTipsScroll->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 130));
 
     fPhotoPanel = new BGroupView(B_VERTICAL, kPad);
     BLayoutBuilder::Group<>(fPhotoPanel, B_VERTICAL, kPad)
@@ -498,11 +484,9 @@ DetailWindow::DetailWindow()
             .AddGlue()
             .Add(fPhotoClearBtn)
             .End()
-        .Add(new BStringView("ph_sep1", ""))
         .Add(new BStringView("ph_glbl", "Grind size estimate:"))
         .Add(fPhotoGauge)
         .Add(fPhotoResultView)
-        .Add(new BStringView("ph_sep2", ""))
         .Add(new BStringView("ph_tlbl", "Grind notes & guidance:"))
         .Add(fPhotoTipsScroll);
 
@@ -529,9 +513,9 @@ DetailWindow::DetailWindow()
     fSieveFileView->SetExplicitAlignment(
         BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
-    ThumbView* svThumb = new ThumbView(BRect(0, 0, 319, 239), me);
-    svThumb->SetExplicitMinSize(BSize(320, 240));
-    svThumb->SetExplicitMaxSize(BSize(320, 240));
+    ThumbView* svThumb = new ThumbView(BRect(0, 0, 239, 179), me);
+    svThumb->SetExplicitMinSize(BSize(240, 180));
+    svThumb->SetExplicitMaxSize(BSize(240, 180));
     fSieveThumb = svThumb;
 
     fSieveHintView = new BStringView("sv_hint",
@@ -548,9 +532,9 @@ DetailWindow::DetailWindow()
     fSieveResetBtn = new BButton("sv_reset", "Reset Distribution",
                                  new BMessage(MSG_SIEVE_RESET));
 
-    fSieveDist = new SieveDistView(BRect(0, 0, 460, 140));
-    fSieveDist->SetExplicitMinSize(BSize(460, 140));
-    fSieveDist->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 200));
+    fSieveDist = new SieveDistView(BRect(0, 0, 460, 100));
+    fSieveDist->SetExplicitMinSize(BSize(460, 100));
+    fSieveDist->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 150));
 
     fSieveSummary = new BStringView("sv_summary", "Load fraction images and click \"Add Fraction\".");
     fSieveSummary->SetExplicitAlignment(
@@ -574,7 +558,6 @@ DetailWindow::DetailWindow()
             .AddGlue()
             .Add(fSieveResetBtn)
             .End()
-        .Add(new BStringView("sv_sep1", ""))
         .Add(new BStringView("sv_dlbl", "Particle size distribution:"))
         .Add(fSieveDist)
         .Add(fSieveSummary);
@@ -586,9 +569,9 @@ DetailWindow::DetailWindow()
     fCalFileView->SetExplicitAlignment(
         BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
-    ThumbView* calThumb = new ThumbView(BRect(0, 0, 319, 239), me);
-    calThumb->SetExplicitMinSize(BSize(320, 240));
-    calThumb->SetExplicitMaxSize(BSize(320, 240));
+    ThumbView* calThumb = new ThumbView(BRect(0, 0, 239, 179), me);
+    calThumb->SetExplicitMinSize(BSize(240, 180));
+    calThumb->SetExplicitMaxSize(BSize(240, 180));
     fCalThumb = calThumb;
 
     fCalHintView = new BStringView("cal_hint",
@@ -626,9 +609,9 @@ DetailWindow::DetailWindow()
                                  new BMessage(MSG_CAL_ANALYSE));
     fCalAnalyseBtn->SetEnabled(false);
 
-    fCalHist = new CalHistView(BRect(0, 0, 460, 130));
-    fCalHist->SetExplicitMinSize(BSize(460, 130));
-    fCalHist->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 200));
+    fCalHist = new CalHistView(BRect(0, 0, 460, 100));
+    fCalHist->SetExplicitMinSize(BSize(460, 100));
+    fCalHist->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 150));
 
     fCalResultView = new BStringView("cal_result", "");
     fCalResultView->SetFont(be_bold_font);
@@ -647,7 +630,6 @@ DetailWindow::DetailWindow()
             .AddGlue()
             .Add(fCalClearBtn)
             .End()
-        .Add(new BStringView("cal_sep1", ""))
         .Add(fCalSubRadioGrp)
         .AddGroup(B_HORIZONTAL, kPad)
             .Add(fCalRefSizeCtl)
@@ -667,9 +649,8 @@ DetailWindow::DetailWindow()
     BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
         .Add(menuBar)
         .AddGroup(B_VERTICAL, kPad)
-            .SetInsets(kPad*2, kPad*2, kPad*2, kPad*2)
+            .SetInsets(kPad*2, kPad, kPad*2, kPad)
             .Add(fModeBar)
-            .Add(new BStringView("sep_top", ""))
             .Add(fPhotoPanel)
             .Add(fSievePanel)
             .Add(fCalPanel)
@@ -767,8 +748,10 @@ float DetailWindow::ComputeGrindScore(BBitmap* bmp, BRect normSel)
         x0 = w/4;   y0 = h/4;
         x1 = w*3/4; y1 = h*3/4;
     }
-    if (x0 < 0) x0 = 0; if (x1 > w) x1 = w;
-    if (y0 < 0) y0 = 0; if (y1 > h) y1 = h;
+    if (x0 < 0) x0 = 0;
+    if (x1 > w) x1 = w;
+    if (y0 < 0) y0 = 0;
+    if (y1 > h) y1 = h;
     if (x0 >= x1 || y0 >= y1) return 0.5f;
 
     // Local contrast map: 8×8 cells
@@ -973,8 +956,10 @@ float DetailWindow::ComputeFractionArea(BBitmap* bmp, BRect normSel)
     } else {
         x0 = 0; y0 = 0; x1 = w; y1 = h;
     }
-    if (x0 < 0) x0 = 0; if (x1 > w) x1 = w;
-    if (y0 < 0) y0 = 0; if (y1 > h) y1 = h;
+    if (x0 < 0) x0 = 0;
+    if (x1 > w) x1 = w;
+    if (y0 < 0) y0 = 0;
+    if (y1 > h) y1 = h;
     if (x0 >= x1 || y0 >= y1) return 0.0f;
 
     int dark = 0, total = 0;
@@ -1098,8 +1083,10 @@ void DetailWindow::AnalyseCal()
     } else {
         x0 = 0; y0 = 0; x1 = w; y1 = h;
     }
-    if (x0 < 0) x0 = 0; if (x1 > w) x1 = w;
-    if (y0 < 0) y0 = 0; if (y1 > h) y1 = h;
+    if (x0 < 0) x0 = 0;
+    if (x1 > w) x1 = w;
+    if (y0 < 0) y0 = 0;
+    if (y1 > h) y1 = h;
 
     // Threshold: luminance < 0.7 → particle
     // Use a flat array of bool for visited flags
@@ -1236,8 +1223,10 @@ float DetailWindow::DetectCirclePxMm(BBitmap* bmp, BRect normSel, float diamMm)
     int y0 = (int)(normSel.top    * h);
     int x1 = (int)(normSel.right  * w);
     int y1 = (int)(normSel.bottom * h);
-    if (x0 < 0) x0 = 0; if (x1 > w) x1 = w;
-    if (y0 < 0) y0 = 0; if (y1 > h) y1 = h;
+    if (x0 < 0) x0 = 0;
+    if (x1 > w) x1 = w;
+    if (y0 < 0) y0 = 0;
+    if (y1 > h) y1 = h;
 
     int rw = x1 - x0, rh = y1 - y0;
     if (rw <= 0 || rh <= 0) return 0.0f;
@@ -1298,8 +1287,10 @@ float DetailWindow::DetectLinesPxMm(BBitmap* bmp, BRect normSel, float spacingMm
     int y0 = (int)(normSel.top    * h);
     int x1 = (int)(normSel.right  * w);
     int y1 = (int)(normSel.bottom * h);
-    if (x0 < 0) x0 = 0; if (x1 > w) x1 = w;
-    if (y0 < 0) y0 = 0; if (y1 > h) y1 = h;
+    if (x0 < 0) x0 = 0;
+    if (x1 > w) x1 = w;
+    if (y0 < 0) y0 = 0;
+    if (y1 > h) y1 = h;
 
     int rw = x1 - x0, rh = y1 - y0;
     if (rw <= 0 || rh <= 0) return 0.0f;
