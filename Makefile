@@ -4,7 +4,10 @@ CXX      = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wno-unused-parameter \
            -I/boot/system/develop/headers/private
 LIBS     = -lbe -lroot -ltranslation -ltracker -lshared
+RC       = rc
 TARGET   = coffee_toolkit
+RDEF     = coffee_toolkit.rdef
+RSRC     = coffee_toolkit.rsrc
 
 SRCS = main.cpp \
        MainWindow.cpp \
@@ -19,8 +22,12 @@ OBJS = $(SRCS:.cpp=.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+$(TARGET): $(OBJS) $(RSRC)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LIBS)
+	xres -o $@ $(RSRC)
+
+$(RSRC): $(RDEF)
+	$(RC) -o $@ $<
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -36,4 +43,4 @@ RoastColorWindow.o:  RoastColorWindow.cpp RoastColorWindow.h Constants.h
 DetailWindow.o:      DetailWindow.cpp DetailWindow.h Constants.h
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) $(RSRC)
