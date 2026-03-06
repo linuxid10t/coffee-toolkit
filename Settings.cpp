@@ -12,6 +12,7 @@
 #include <Message.h>
 #include <Path.h>
 #include <Window.h>
+#include <LocaleRoster.h>
 #include <string.h>
 
 static const char* kSettingsFile = "CoffeeToolkit_settings";
@@ -24,7 +25,27 @@ CoffeeSettings::CoffeeSettings()
       fRatio(15),
       fTheme(0)
 {
+    // Default language: detect system locale, fall back to "en"
     strlcpy(fLanguage, "en", sizeof(fLanguage));
+    {
+        BLocaleRoster* roster = BLocaleRoster::Default();
+        BMessage preferredLangs;
+        if (roster != nullptr
+            && roster->GetPreferredLanguages(&preferredLangs) == B_OK) {
+            const char* lang = nullptr;
+            if (preferredLangs.FindString("language", &lang) == B_OK
+                && lang != nullptr && lang[0] != '\0' && lang[1] != '\0') {
+                char code[3] = { lang[0], lang[1], '\0' };
+                const char* supported[] = { "en", "es", "fr", "de", "ja" };
+                for (const char* s : supported) {
+                    if (strcmp(code, s) == 0) {
+                        strlcpy(fLanguage, code, sizeof(fLanguage));
+                        break;
+                    }
+                }
+            }
+        }
+    }
     Load();
 }
 
