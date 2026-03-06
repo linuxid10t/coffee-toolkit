@@ -84,5 +84,6 @@ BrewRatioWindow.h/.cpp   Brew ratio calculator
 ExtractionWindow.h/.cpp  Extraction calculator + ExtractionBarView gauge
 RoastColorWindow.h/.cpp  Roast analyzer + RoastGaugeView + ThumbView
 DetailWindow.h/.cpp      Placeholder (future Particle Analyzer)
+toolkit.png              Application icon (toolbox illustration)
 Makefile
 ```
