@@ -39,6 +39,22 @@ const uint32 MSG_SELECTION_CHANGED = 'RSEL';
 const uint32 MSG_CLEAR_SELECTION   = 'RCLS';
 
 // -------------------------------------------------------
+// DetailWindow (Particle Analyzer) internals
+// -------------------------------------------------------
+const uint32 MSG_PART_MODE_PHOTO  = 'PMPH';
+const uint32 MSG_PART_MODE_SIEVE  = 'PMSV';
+const uint32 MSG_PART_MODE_CAL    = 'PMCL';
+const uint32 MSG_PART_OPEN        = 'POPN';
+const uint32 MSG_PART_REFS        = 'PREF';
+const uint32 MSG_SIEVE_OPEN       = 'PSOP';
+const uint32 MSG_SIEVE_REFS       = 'PSRF';
+const uint32 MSG_SIEVE_ADD        = 'PSAD';
+const uint32 MSG_SIEVE_RESET      = 'PSRS';
+const uint32 MSG_CAL_OPEN         = 'PCOP';
+const uint32 MSG_CAL_REFS         = 'PCRF';
+const uint32 MSG_CAL_ANALYSE      = 'PCAL';
+
+// -------------------------------------------------------
 // Settings menu messages
 // -------------------------------------------------------
 const uint32 MSG_SET_TEMP_CELSIUS     = 'STC ';

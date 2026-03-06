@@ -43,8 +43,25 @@ Agtron roast bands (SCAA standard):
 - 35–25: Very Dark (Italian / Spanish)
 
 ### Particle Analyzer
-Placeholder only — not yet implemented. Intended to estimate grind
-particle size distribution from a photograph of a coffee sample.
+Three analysis modes selectable via radio buttons at the top of the window:
+
+**Mode 1 — Photo Estimate:** Load a photograph of coffee grounds. The
+selected region (or centre 50%) is divided into 8×8 px cells; the average
+per-cell luminance variance (local contrast map) is mapped to a Fine→Coarse
+grind band (Extra Fine <250 µm through Extra Coarse >1200 µm). Result shown
+on a custom gradient gauge with a pointer and contextual brew tips.
+
+**Mode 2 — Sieve Cascade:** The user physically sieves grounds and
+photographs each sieve fraction on a white background. The app thresholds
+each image (luminance < 0.7 = particle) to compute the relative dark-pixel
+area, accumulates entries for user-selected sieve sizes (212–1700 µm), and
+renders a labelled bar-chart distribution with a D50 estimate.
+
+**Mode 3 — Calibrated Sheet:** The user photographs grounds on paper with
+a known scale reference and enters the pixels-per-mm calibration. The app
+thresholds the image and flood-fills connected components to measure each
+particle blob; effective diameter = 2·√(area/π). Results shown as a
+particle-diameter histogram with D50, D90, and particle count.
 
 ## Key UI Decisions Made During Development
 
