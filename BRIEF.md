@@ -101,7 +101,17 @@ g++ -std=c++17 -o coffee_toolkit \
     main.cpp MainWindow.cpp BrewRatioWindow.cpp \
     ExtractionWindow.cpp RoastColorWindow.cpp DetailWindow.cpp Settings.cpp \
     -lbe -lroot -ltranslation -ltracker -lshared
+g++ -std=c++17 -o set_icon set_icon.cpp -lbe -lroot -ltranslation
+rc -o coffee_toolkit.rsrc coffee_toolkit.rdef
+xres -o coffee_toolkit coffee_toolkit.rsrc
+mimeset -f coffee_toolkit
+./set_icon coffee_toolkit toolkit.png
 ```
+
+The `set_icon` step compiles and runs a small Haiku-native helper that scales
+`toolkit.png` to 32×32 and 16×16, converts to the BeOS CMAP8 palette via
+`BScreen::IndexForColor`, and writes `BEOS:APP_ICON` / `BEOS:MINI_ICON`
+attributes on the binary so Tracker displays the icon.
 
 ## File Structure
 
@@ -114,6 +124,8 @@ ExtractionWindow.h/.cpp  Extraction calculator + ExtractionBarView gauge
 RoastColorWindow.h/.cpp  Roast analyzer + RoastGaugeView + ThumbView
 DetailWindow.h/.cpp      Particle analyzer (Photo / Sieve / Calibrated modes)
 Settings.h/.cpp          Persistent settings singleton + cross-window sync
-toolkit.png              Application icon (toolbox illustration)
+toolkit.png              Application icon source (1024×1024 RGBA)
+set_icon.cpp             Build helper: scales PNG → CMAP8 icon attributes
+coffee_toolkit.rdef      Resource definitions (app signature, version)
 Makefile
 ```

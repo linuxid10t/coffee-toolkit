@@ -1,7 +1,5 @@
 /* coffee_toolkit.rdef – Resource definition for Coffee Toolkit */
 
-resource(1, "BEOS:APP_ICON") #'VICN' import "toolkit.png";
-
 resource app_version {
     major = 1,
     middle = 0,

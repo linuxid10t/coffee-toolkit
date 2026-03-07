@@ -10,7 +10,7 @@ of tools for brewing, extraction analysis, and roast evaluation.
 | Brew Ratio Calculator | ✅ Complete | Calculate coffee dose from water volume and a 1:X ratio (presets or custom) |
 | Extraction Calculator | ✅ Complete | Compute extraction yield from TDS or Brix, with a colour-coded gauge and brew tips |
 | Roast Color Analyzer | ✅ Complete | Estimate Agtron roast score from a photograph, with drag-to-select sampling region |
-| Particle Analyzer | 🚧 Planned | Grind particle size distribution from a sample image |
+| Particle Analyzer | ✅ Complete | Grind particle size distribution — photo estimate, sieve cascade, or calibrated sheet modes |
 
 ## Screenshots
 
@@ -45,21 +45,29 @@ make clean
 ```bash
 g++ -std=c++17 -o coffee_toolkit \
     main.cpp MainWindow.cpp BrewRatioWindow.cpp \
-    ExtractionWindow.cpp RoastColorWindow.cpp DetailWindow.cpp \
-    -lbe -lroot -ltranslation -ltracker
+    ExtractionWindow.cpp RoastColorWindow.cpp DetailWindow.cpp Settings.cpp \
+    -lbe -lroot -ltranslation -ltracker -lshared
+g++ -std=c++17 -o set_icon set_icon.cpp -lbe -lroot -ltranslation
+xres -o coffee_toolkit coffee_toolkit.rsrc
+mimeset -f coffee_toolkit
+./set_icon coffee_toolkit toolkit.png
 ```
 
 ## Project Structure
 
 ```
 coffee-toolkit/
-├── Constants.h            # Shared message constants and layout values
-├── main.cpp               # Application entry point (CoffeeToolkitApp)
-├── MainWindow.h/.cpp      # Four-button launcher window
-├── BrewRatioWindow.h/.cpp # Brew ratio calculator
-├── ExtractionWindow.h/.cpp# Extraction calculator + gauge view
-├── RoastColorWindow.h/.cpp# Roast color analyzer + gauge + thumbnail view
-├── DetailWindow.h/.cpp    # Placeholder (future Particle Analyzer)
+├── Constants.h             # Shared message constants and layout values
+├── main.cpp                # Application entry point (CoffeeToolkitApp)
+├── MainWindow.h/.cpp       # Four-button launcher window
+├── BrewRatioWindow.h/.cpp  # Brew ratio calculator
+├── ExtractionWindow.h/.cpp # Extraction calculator + gauge view
+├── RoastColorWindow.h/.cpp # Roast color analyzer + gauge + thumbnail view
+├── DetailWindow.h/.cpp     # Particle analyzer (photo / sieve / calibrated modes)
+├── Settings.h/.cpp         # Persistent settings singleton + cross-window sync
+├── toolkit.png             # Application icon source (1024×1024 RGBA)
+├── set_icon.cpp            # Build helper: scales PNG and writes icon attributes
+├── coffee_toolkit.rdef     # Resource definitions (app signature, version)
 └── Makefile
 ```
 
@@ -100,4 +108,4 @@ David Masson
 
 ## License
 
-_(add your chosen license here)_
+MIT License — Copyright (c) 2026 David Masson. See [LICENSE](LICENSE) for details.

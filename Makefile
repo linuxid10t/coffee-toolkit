@@ -8,6 +8,8 @@ RC       = rc
 TARGET   = coffee_toolkit
 RDEF     = coffee_toolkit.rdef
 RSRC     = coffee_toolkit.rsrc
+SET_ICON = set_icon
+ICON_SRC = toolkit.png
 
 SRCS = main.cpp \
        MainWindow.cpp \
@@ -23,9 +25,14 @@ OBJS = $(SRCS:.cpp=.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS) $(RSRC)
+$(SET_ICON): set_icon.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $< -lbe -lroot -ltranslation
+
+$(TARGET): $(OBJS) $(RSRC) $(SET_ICON) $(ICON_SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LIBS)
 	xres -o $@ $(RSRC)
+	mimeset -f $@
+	./$(SET_ICON) $@ $(ICON_SRC)
 
 $(RSRC): $(RDEF)
 	$(RC) -o $@ $<
@@ -45,4 +52,4 @@ DetailWindow.o:      DetailWindow.cpp DetailWindow.h Constants.h Settings.h
 Settings.o:          Settings.cpp Settings.h Constants.h
 
 clean:
-	rm -f $(OBJS) $(TARGET) $(RSRC)
+	rm -f $(OBJS) $(TARGET) $(RSRC) $(SET_ICON)
