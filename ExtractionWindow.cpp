@@ -41,10 +41,20 @@ void ExtractionBarView::SetExtraction(float extraction,
 
 void ExtractionBarView::Draw(BRect /*updateRect*/)
 {
+    CoffeeSettings* s = CoffeeSettings::Get();
+    rgb_color bg      = s->ThemePanelBg();
+    rgb_color text    = s->ThemeTextColor();
+    rgb_color dim     = s->ThemeDimTextColor();
+    rgb_color outline = s->ThemeOutlineColor();
+
     BRect b = Bounds();
     float barTop    = 18.0f;
     float barBottom = 44.0f;
     float barH      = barBottom - barTop;
+
+    // Clear background
+    SetHighColor(bg);
+    FillRect(b);
 
     auto pctToX = [&](float pct) -> float {
         return b.left + 2.0f + (pct / kBarMax) * (b.Width() - 4.0f);
@@ -69,12 +79,12 @@ void ExtractionBarView::Draw(BRect /*updateRect*/)
     FillRect(BRect(xIdHi, barTop, b.right-2, barBottom));
 
     // Outline
-    SetHighColor(80, 80, 80);
+    SetHighColor(outline);
     StrokeRect(BRect(b.left+2, barTop, b.right-2, barBottom));
 
     // Scale ticks
     BFont small; small.SetSize(9.0f); SetFont(&small);
-    SetHighColor(60, 60, 60);
+    SetHighColor(dim);
     for (int pct = 0; pct <= (int)kBarMax; pct += 5) {
         float x = pctToX((float)pct);
         StrokeLine(BPoint(x, barBottom), BPoint(x, barBottom + 4));
@@ -93,15 +103,15 @@ void ExtractionBarView::Draw(BRect /*updateRect*/)
     // Pointer
     if (fExtraction >= 0.0f) {
         float x = pctToX(fExtraction);
-        SetHighColor(30, 30, 30);
+        SetHighColor(text);
         FillTriangle(BPoint(x, barTop - 1),
                      BPoint(x - 5, barTop - 9),
                      BPoint(x + 5, barTop - 9));
-        SetHighColor(20, 20, 20);
+        SetHighColor(outline);
         StrokeLine(BPoint(x, barTop), BPoint(x, barBottom));
         char val[16]; snprintf(val, sizeof(val), "%.1f%%", fExtraction);
         BFont normal; normal.SetSize(10.0f); SetFont(&normal);
-        SetHighColor(10, 10, 10);
+        SetHighColor(text);
         DrawString(val, BPoint(x - 12, barTop - 11));
     }
 }
@@ -163,6 +173,13 @@ ExtractionWindow::ExtractionWindow()
     fTipsView->MakeSelectable(false);
     fTipsView->SetWordWrap(true);
     fTipsView->SetText("Enter your values above and press Calculate.");
+    {
+        CoffeeSettings* s = CoffeeSettings::Get();
+        fTipsView->SetViewColor(s->ThemePanelBg());
+        rgb_color tc = s->ThemeTextColor();
+        fTipsView->SetFontAndColor(0, fTipsView->TextLength(),
+                                   be_plain_font, B_FONT_ALL, &tc);
+    }
 
     fTipsScroll = new BScrollView("tips_scroll", fTipsView,
                                   B_FOLLOW_ALL, 0, false, true);
@@ -252,6 +269,11 @@ void ExtractionWindow::Calculate()
 
     if (measure <= 0.0f || liquid <= 0.0f || dose <= 0.0f) {
         fTipsView->SetText("Please fill in all fields with positive values.");
+        {
+            rgb_color tc = CoffeeSettings::Get()->ThemeTextColor();
+            fTipsView->SetFontAndColor(0, fTipsView->TextLength(),
+                                       be_plain_font, B_FONT_ALL, &tc);
+        }
         fBarView->SetExtraction(-1.0f, 18.0f, 22.0f);
         return;
     }
@@ -316,6 +338,11 @@ void ExtractionWindow::Calculate()
     }
 
     fTipsView->SetText(buf);
+    {
+        rgb_color tc = CoffeeSettings::Get()->ThemeTextColor();
+        fTipsView->SetFontAndColor(0, fTipsView->TextLength(),
+                                   be_plain_font, B_FONT_ALL, &tc);
+    }
 }
 
 void ExtractionWindow::MessageReceived(BMessage* msg)
@@ -340,6 +367,17 @@ void ExtractionWindow::MessageReceived(BMessage* msg)
         case MSG_EXT_CALC:
             Calculate();
             break;
+        case MSG_THEME_CHANGED: {
+            CoffeeSettings* s = CoffeeSettings::Get();
+            rgb_color bg = s->ThemePanelBg();
+            rgb_color tc = s->ThemeTextColor();
+            fTipsView->SetViewColor(bg);
+            fTipsView->SetFontAndColor(0, fTipsView->TextLength(),
+                                       be_plain_font, B_FONT_ALL, &tc);
+            fTipsView->Invalidate();
+            fBarView->Invalidate();
+            break;
+        }
         default:
             if (CoffeeSettings::Get()->HandleSettingsMessage(msg))
                 break;

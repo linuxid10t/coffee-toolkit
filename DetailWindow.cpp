@@ -66,6 +66,12 @@ void ParticleGaugeView::SetScore(float score)
 
 void ParticleGaugeView::Draw(BRect /*updateRect*/)
 {
+    CoffeeSettings* s = CoffeeSettings::Get();
+    rgb_color bg      = s->ThemePanelBg();
+    rgb_color dim     = s->ThemeDimTextColor();
+    rgb_color outline = s->ThemeOutlineColor();
+    rgb_color text    = s->ThemeTextColor();
+
     BRect b = Bounds();
     float barTop    = 18.0f;
     float barBottom = 44.0f;
@@ -73,6 +79,10 @@ void ParticleGaugeView::Draw(BRect /*updateRect*/)
     float barLeft   = b.left  + 2.0f;
     float barRight  = b.right - 2.0f;
     float barWidth  = barRight - barLeft;
+
+    // Clear background
+    SetHighColor(bg);
+    FillRect(b);
 
     auto scoreToX = [&](float s) -> float {
         return barLeft + s * barWidth;
@@ -107,7 +117,7 @@ void ParticleGaugeView::Draw(BRect /*updateRect*/)
     }
 
     // Outline
-    SetHighColor(60, 60, 60);
+    SetHighColor(outline);
     StrokeRect(BRect(barLeft, barTop, barRight, barBottom));
 
     // Band dividers and labels
@@ -116,7 +126,7 @@ void ParticleGaugeView::Draw(BRect /*updateRect*/)
         float xL = scoreToX(kBands[i].lo);
         float xR = scoreToX(kBands[i].hi);
         if (i > 0) {
-            SetHighColor(80, 80, 80);
+            SetHighColor(outline);
             StrokeLine(BPoint(xL, barTop), BPoint(xL, barBottom));
         }
         // label colour: light on dark right side, dark on light left side
@@ -130,25 +140,25 @@ void ParticleGaugeView::Draw(BRect /*updateRect*/)
 
     // Scale ticks
     BFont small; small.SetSize(9.0f); SetFont(&small);
-    SetHighColor(60, 60, 60);
+    SetHighColor(dim);
     for (int i = 0; i <= kNBands; i++) {
-        float s = (float)i / kNBands;
-        float x = scoreToX(s);
+        float sc = (float)i / kNBands;
+        float x = scoreToX(sc);
         StrokeLine(BPoint(x, barBottom), BPoint(x, barBottom+4));
     }
 
     // Pointer
     if (fScore >= 0.0f && fScore <= 1.0f) {
         float x = scoreToX(fScore);
-        SetHighColor(255, 255, 255);
+        SetHighColor(text);
         FillTriangle(BPoint(x, barTop-1),
                      BPoint(x-5, barTop-9),
                      BPoint(x+5, barTop-9));
-        SetHighColor(30, 30, 30);
+        SetHighColor(outline);
         StrokeTriangle(BPoint(x, barTop-1),
                        BPoint(x-5, barTop-9),
                        BPoint(x+5, barTop-9));
-        SetHighColor(255, 255, 255);
+        SetHighColor(text);
         SetDrawingMode(B_OP_OVER);
         StrokeLine(BPoint(x, barTop), BPoint(x, barBottom));
         SetDrawingMode(B_OP_COPY);
@@ -179,12 +189,17 @@ void SieveDistView::SetFractions(const std::vector<SieveFraction>& fracs)
 
 void SieveDistView::Draw(BRect /*updateRect*/)
 {
+    CoffeeSettings* s = CoffeeSettings::Get();
+    rgb_color bg      = s->ThemePanelBg();
+    rgb_color text    = s->ThemeTextColor();
+    rgb_color dim     = s->ThemeDimTextColor();
+
     BRect b = Bounds();
-    SetHighColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+    SetHighColor(bg);
     FillRect(b);
 
     if (fFractions.empty()) {
-        SetHighColor(120, 120, 120);
+        SetHighColor(dim);
         BFont f; f.SetSize(11); SetFont(&f);
         DrawString("No fractions loaded yet.",
                    BPoint(10, b.Height()/2));
@@ -220,7 +235,7 @@ void SieveDistView::Draw(BRect /*updateRect*/)
 
         // Percentage label above bar
         char pctStr[8]; snprintf(pctStr, sizeof(pctStr), "%.0f%%", pct*100.0f);
-        SetHighColor(40, 40, 40);
+        SetHighColor(text);
         DrawString(pctStr, BPoint(bx, by - 2));
 
         // Sieve size label below bar
@@ -230,7 +245,7 @@ void SieveDistView::Draw(BRect /*updateRect*/)
         else
             snprintf(szStr, sizeof(szStr), "%.1fmm",
                      fFractions[i].sizeUm / 1000.0f);
-        SetHighColor(60, 60, 60);
+        SetHighColor(dim);
         DrawString(szStr, BPoint(bx, bye + 12));
     }
 }
@@ -254,12 +269,16 @@ void CalHistView::SetDiameters(const std::vector<float>& diameters_mm)
 
 void CalHistView::Draw(BRect /*updateRect*/)
 {
+    CoffeeSettings* s = CoffeeSettings::Get();
+    rgb_color bg      = s->ThemePanelBg();
+    rgb_color dim     = s->ThemeDimTextColor();
+
     BRect b = Bounds();
-    SetHighColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+    SetHighColor(bg);
     FillRect(b);
 
     if (fDiameters.empty()) {
-        SetHighColor(120, 120, 120);
+        SetHighColor(dim);
         BFont f; f.SetSize(11); SetFont(&f);
         DrawString("No analysis run yet.", BPoint(10, b.Height()/2));
         return;
@@ -304,7 +323,7 @@ void CalHistView::Draw(BRect /*updateRect*/)
 
     // X-axis tick labels every 0.5 mm (or equivalent in inches)
     bool metric = CoffeeSettings::Get()->UseMetric();
-    SetHighColor(60, 60, 60);
+    SetHighColor(dim);
     for (int i = 0; i <= nBins; i += 5) {
         float x = margin + i * bw;
         StrokeLine(BPoint(x, b.Height()-20.0f),
@@ -316,6 +335,7 @@ void CalHistView::Draw(BRect /*updateRect*/)
     }
 
     // Unit label
+    SetHighColor(dim);
     DrawString(metric ? "mm" : "in", BPoint(b.Width()-22, b.Height()-6));
 }
 
@@ -467,6 +487,13 @@ DetailWindow::DetailWindow()
         "  * Diffuse, even lighting — avoid direct sunlight\n"
         "  * Fill the frame with grounds\n\n"
         "Drag a rectangle on the preview to sample a specific region.");
+    {
+        CoffeeSettings* s = CoffeeSettings::Get();
+        fPhotoTipsView->SetViewColor(s->ThemePanelBg());
+        rgb_color tc = s->ThemeTextColor();
+        fPhotoTipsView->SetFontAndColor(0, fPhotoTipsView->TextLength(),
+                                        be_plain_font, B_FONT_ALL, &tc);
+    }
     fPhotoTipsScroll = new BScrollView("ph_tips_scroll", fPhotoTipsView,
                                        B_FOLLOW_ALL, 0, false, true);
     fPhotoTipsScroll->SetExplicitMinSize(BSize(460, 75));
@@ -1510,6 +1537,20 @@ void DetailWindow::MessageReceived(BMessage* msg)
             if (CoffeeSettings::Get()->HandleSettingsMessage(msg))
                 UpdateUnits();
             break;
+
+        case MSG_THEME_CHANGED: {
+            CoffeeSettings* s = CoffeeSettings::Get();
+            rgb_color bg = s->ThemePanelBg();
+            rgb_color tc = s->ThemeTextColor();
+            fPhotoTipsView->SetViewColor(bg);
+            fPhotoTipsView->SetFontAndColor(0, fPhotoTipsView->TextLength(),
+                                            be_plain_font, B_FONT_ALL, &tc);
+            fPhotoTipsView->Invalidate();
+            fPhotoGauge->Invalidate();
+            fSieveDist->Invalidate();
+            fCalHist->Invalidate();
+            break;
+        }
 
         default:
             if (CoffeeSettings::Get()->HandleSettingsMessage(msg))

@@ -37,6 +37,12 @@ void RoastGaugeView::SetAgtron(float agtron)
 
 void RoastGaugeView::Draw(BRect /*updateRect*/)
 {
+    CoffeeSettings* s = CoffeeSettings::Get();
+    rgb_color bg      = s->ThemePanelBg();
+    rgb_color text    = s->ThemeTextColor();
+    rgb_color dim     = s->ThemeDimTextColor();
+    rgb_color outline = s->ThemeOutlineColor();
+
     BRect b = Bounds();
     float barTop    = 18.0f;
     float barBottom = 44.0f;
@@ -44,6 +50,10 @@ void RoastGaugeView::Draw(BRect /*updateRect*/)
     float barLeft   = b.left  + 2.0f;
     float barRight  = b.right - 2.0f;
     float barWidth  = barRight - barLeft;
+
+    // Clear background
+    SetHighColor(bg);
+    FillRect(b);
 
     auto agtronToX = [&](float ag) -> float {
         float t = (ag - kAgtronMin) / (kAgtronMax - kAgtronMin);
@@ -80,7 +90,7 @@ void RoastGaugeView::Draw(BRect /*updateRect*/)
     }
 
     // Outline
-    SetHighColor(60, 60, 60);
+    SetHighColor(outline);
     StrokeRect(BRect(barLeft, barTop, barRight, barBottom));
 
     // Roast level band dividers and labels
@@ -110,7 +120,7 @@ void RoastGaugeView::Draw(BRect /*updateRect*/)
 
     // Scale ticks
     BFont small; small.SetSize(9.0f); SetFont(&small);
-    SetHighColor(60, 60, 60);
+    SetHighColor(dim);
     for (int ag = 25; ag <= 95; ag += 10) {
         float x = agtronToX((float)ag);
         StrokeLine(BPoint(x, barBottom), BPoint(x, barBottom+4));
@@ -135,7 +145,7 @@ void RoastGaugeView::Draw(BRect /*updateRect*/)
         SetDrawingMode(B_OP_COPY);
         char val[16]; snprintf(val, sizeof(val), "%.0f", fAgtron);
         BFont norm; norm.SetSize(10.0f); SetFont(&norm);
-        SetHighColor(10, 10, 10);
+        SetHighColor(text);
         DrawString(val, BPoint(x-8, barTop-11));
     }
 }
@@ -252,10 +262,11 @@ void ThumbView::Draw(BRect /*updateRect*/)
         DrawBitmapAsync(fBitmap, fBitmap->Bounds(),
                         b, B_FILTER_BITMAP_BILINEAR);
     } else {
-        SetHighColor(80, 80, 80);
+        CoffeeSettings* s = CoffeeSettings::Get();
+        SetHighColor(s->ThemeDimTextColor());
         BFont f; f.SetSize(11); SetFont(&f);
         DrawString("No image loaded", BPoint(10, b.Height()/2));
-        SetHighColor(60, 60, 60);
+        SetHighColor(s->ThemeOutlineColor());
         DrawString("Click 'Load Image' above",
                    BPoint(10, b.Height()/2 + 16));
     }
@@ -374,6 +385,13 @@ RoastColorWindow::RoastColorWindow()
         "  * Fill most of the frame with coffee\n\n"
         "Drag a selection rectangle on the preview to sample a\n"
         "specific region instead of the default centre crop.");
+    {
+        CoffeeSettings* s = CoffeeSettings::Get();
+        fTipsView->SetViewColor(s->ThemePanelBg());
+        rgb_color tc = s->ThemeTextColor();
+        fTipsView->SetFontAndColor(0, fTipsView->TextLength(),
+                                   be_plain_font, B_FONT_ALL, &tc);
+    }
 
     fTipsScroll = new BScrollView("roast_tips_scroll", fTipsView,
                                   B_FOLLOW_ALL, 0, false, true);
@@ -626,6 +644,11 @@ void RoastColorWindow::Analyse()
     char tips[2048];
     BuildTips(agtron, tips, sizeof(tips));
     fTipsView->SetText(tips);
+    {
+        rgb_color tc = CoffeeSettings::Get()->ThemeTextColor();
+        fTipsView->SetFontAndColor(0, fTipsView->TextLength(),
+                                   be_plain_font, B_FONT_ALL, &tc);
+    }
 }
 
 void RoastColorWindow::MessageReceived(BMessage* msg)
@@ -658,6 +681,17 @@ void RoastColorWindow::MessageReceived(BMessage* msg)
             fClearSelBtn->SetEnabled(false);
             if (fSourceBitmap)
                 Analyse();
+            break;
+        }
+        case MSG_THEME_CHANGED: {
+            CoffeeSettings* s = CoffeeSettings::Get();
+            rgb_color bg = s->ThemePanelBg();
+            rgb_color tc = s->ThemeTextColor();
+            fTipsView->SetViewColor(bg);
+            fTipsView->SetFontAndColor(0, fTipsView->TextLength(),
+                                       be_plain_font, B_FONT_ALL, &tc);
+            fTipsView->Invalidate();
+            fGaugeView->Invalidate();
             break;
         }
         default:

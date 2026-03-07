@@ -5,6 +5,7 @@
  *  and cross-window menu synchronisation.
  */
 
+#include <InterfaceDefs.h>
 #include <SupportDefs.h>
 
 class BMenuBar;
@@ -26,6 +27,12 @@ public:
     int32       DefaultRatio() const    { return fRatio; }
     int32       Theme() const           { return fTheme; }
     const char* Language() const        { return fLanguage; }
+
+    // Theme color accessors
+    rgb_color   ThemePanelBg() const;
+    rgb_color   ThemeTextColor() const;
+    rgb_color   ThemeDimTextColor() const;
+    rgb_color   ThemeOutlineColor() const;
 
 private:
                             CoffeeSettings();

@@ -73,7 +73,34 @@ settings always take precedence once a settings file exists.
 
 Settings are synchronised across all open windows via `SyncAllWindows()`,
 which walks `be_app->WindowAt()` and updates every Settings submenu in
-place.
+place, then broadcasts `MSG_THEME_CHANGED` to every window so custom
+views and BTextView tips areas repaint with the new theme colours.
+
+### Theme System
+
+The Theme setting (System default / Light / Dark) is stored as an integer
+(0 / 1 / 2) and applied to all custom-drawn content via four accessor
+methods on `CoffeeSettings`:
+
+| Accessor | Light | Dark | System |
+|---|---|---|---|
+| `ThemePanelBg()` | (245, 245, 242) | (38, 38, 42) | `ui_color(B_PANEL_BACKGROUND_COLOR)` |
+| `ThemeTextColor()` | (20, 20, 20) | (210, 210, 210) | `ui_color(B_PANEL_TEXT_COLOR)` |
+| `ThemeDimTextColor()` | (90, 90, 90) | (150, 150, 150) | (120, 120, 120) |
+| `ThemeOutlineColor()` | (100, 100, 100) | (80, 80, 80) | (70, 70, 70) |
+
+Each custom `Draw()` method fetches these values at the top and uses them
+for background fills, outlines, tick marks, and label colours. Standard
+Haiku controls (BButton, BRadioButton, BTextControl, BMenuBar) are drawn
+by the app_server and are unaffected. The coffee-colour gradients in the
+gauge bars (roast scale, grind size) are data representations and are
+intentionally unchanged across themes.
+
+When `MSG_THEME_CHANGED` is received, each tool window updates the
+`SetViewColor` and text colour of its `BTextView` tips area (via
+`SetFontAndColor` over the full text range) and calls `Invalidate()` on
+each custom gauge/chart view. Newly opened windows pick up the active
+theme in their constructors.
 
 ## Key UI Decisions Made During Development
 

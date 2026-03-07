@@ -5,12 +5,22 @@ of tools for brewing, extraction analysis, and roast evaluation.
 
 ## Features
 
-| Tool | Status | Description |
-|---|---|---|
-| Brew Ratio Calculator | ✅ Complete | Calculate coffee dose from water volume and a 1:X ratio (presets or custom) |
-| Extraction Calculator | ✅ Complete | Compute extraction yield from TDS or Brix, with a colour-coded gauge and brew tips |
-| Roast Color Analyzer | ✅ Complete | Estimate Agtron roast score from a photograph, with drag-to-select sampling region |
-| Particle Analyzer | ✅ Complete | Grind particle size distribution — photo estimate, sieve cascade, or calibrated sheet modes |
+| Tool | Description |
+|---|---|
+| Brew Ratio Calculator | Calculate coffee dose from water volume and a 1:X ratio (presets or custom) |
+| Extraction Calculator | Compute extraction yield from TDS or Brix, with a colour-coded gauge and brew tips |
+| Roast Color Analyzer | Estimate Agtron roast score from a photograph, with drag-to-select sampling region |
+| Particle Analyzer | Grind particle size distribution — photo estimate, sieve cascade, or calibrated sheet modes |
+
+### Settings
+
+All windows share a persistent settings menu with:
+
+- **Temperature** — Celsius / Fahrenheit
+- **Default Brew Ratio** — 1:15 through 1:18
+- **Theme** — System default / Light / Dark (applied live to all open windows)
+- **Language** — English, Español, Français, Deutsch, 日本語
+- **Measurement Units** — Millimetres / Inches
 
 ## Screenshots
 
@@ -101,6 +111,13 @@ TDS can be entered directly or converted from Brix (`TDS = Brix × 0.85`).
 Ideal extraction yield ranges (SCAA):
 - Percolation: 18–22%
 - Immersion: 18–24%
+
+## Theme Support
+
+The Theme setting (Settings → Theme) applies live to all open windows.
+Custom-drawn views — gauge bars, distribution charts, and BTextView tips
+areas — switch between light and dark palettes immediately. Standard
+Haiku controls follow the system appearance as usual.
 
 ## Author
 

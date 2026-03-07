@@ -58,6 +58,11 @@ const uint32 MSG_CAL_SUB_LINES    = 'PCSL';   // radio: lines sub-method
 const uint32 MSG_CAL_CALIBRATE    = 'PCCB';   // "Calibrate" button clicked
 
 // -------------------------------------------------------
+// Theme-change broadcast (posted to all windows by SyncAllWindows)
+// -------------------------------------------------------
+const uint32 MSG_THEME_CHANGED = 'THch';
+
+// -------------------------------------------------------
 // Settings menu messages
 // -------------------------------------------------------
 const uint32 MSG_SET_UNIT_MM          = 'SUMM';

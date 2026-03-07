@@ -5,6 +5,7 @@
 
 #include <Application.h>
 #include <File.h>
+#include <InterfaceDefs.h>
 #include <FindDirectory.h>
 #include <Menu.h>
 #include <MenuBar.h>
@@ -115,6 +116,46 @@ CoffeeSettings::Save()
     archive.AddInt32("theme", fTheme);
     archive.AddString("language", fLanguage);
     archive.Flatten(&file);
+}
+
+rgb_color
+CoffeeSettings::ThemePanelBg() const
+{
+    switch (fTheme) {
+        case 1: return { 245, 245, 242, 255 };
+        case 2: return {  38,  38,  42, 255 };
+        default: return ui_color(B_PANEL_BACKGROUND_COLOR);
+    }
+}
+
+rgb_color
+CoffeeSettings::ThemeTextColor() const
+{
+    switch (fTheme) {
+        case 1: return {  20,  20,  20, 255 };
+        case 2: return { 210, 210, 210, 255 };
+        default: return ui_color(B_PANEL_TEXT_COLOR);
+    }
+}
+
+rgb_color
+CoffeeSettings::ThemeDimTextColor() const
+{
+    switch (fTheme) {
+        case 1: return {  90,  90,  90, 255 };
+        case 2: return { 150, 150, 150, 255 };
+        default: return { 120, 120, 120, 255 };
+    }
+}
+
+rgb_color
+CoffeeSettings::ThemeOutlineColor() const
+{
+    switch (fTheme) {
+        case 1: return { 100, 100, 100, 255 };
+        case 2: return {  80,  80,  80, 255 };
+        default: return {  70,  70,  70, 255 };
+    }
 }
 
 /* static */ void
@@ -280,4 +321,8 @@ CoffeeSettings::SyncAllWindows()
         }
         win->Unlock();
     }
+
+    // Notify all windows that the theme may have changed
+    for (int32 i = 0; i < be_app->CountWindows(); i++)
+        be_app->WindowAt(i)->PostMessage(MSG_THEME_CHANGED);
 }
