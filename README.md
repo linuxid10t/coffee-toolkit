@@ -55,7 +55,7 @@ make clean
 ```bash
 g++ -std=c++17 -o coffee_toolkit \
     main.cpp MainWindow.cpp BrewRatioWindow.cpp \
-    ExtractionWindow.cpp RoastColorWindow.cpp DetailWindow.cpp Settings.cpp \
+    ExtractionWindow.cpp RoastColorWindow.cpp ParticleWindow.cpp Settings.cpp \
     -lbe -lroot -ltranslation -ltracker -lshared
 g++ -std=c++17 -o set_icon set_icon.cpp -lbe -lroot -ltranslation
 xres -o coffee_toolkit coffee_toolkit.rsrc
@@ -73,7 +73,7 @@ coffee-toolkit/
 ├── BrewRatioWindow.h/.cpp  # Brew ratio calculator
 ├── ExtractionWindow.h/.cpp # Extraction calculator + gauge view
 ├── RoastColorWindow.h/.cpp # Roast color analyzer + gauge + thumbnail view
-├── DetailWindow.h/.cpp     # Particle analyzer (photo / sieve / calibrated modes)
+├── ParticleWindow.h/.cpp   # Particle analyzer (photo / sieve / calibrated modes)
 ├── Settings.h/.cpp         # Persistent settings singleton + cross-window sync
 ├── toolkit.png             # Application icon source (1024×1024 RGBA)
 ├── set_icon.cpp            # Build helper: scales PNG and writes icon attributes
@@ -111,6 +111,49 @@ TDS can be entered directly or converted from Brix (`TDS = Brix × 0.85`).
 Ideal extraction yield ranges (SCAA):
 - Percolation: 18–22%
 - Immersion: 18–24%
+
+## How the Brew Ratio Calculator Works
+
+The brew ratio (coffee:water) determines strength and extraction. This calculator
+computes the required coffee dose from your water volume and chosen ratio:
+
+```
+coffee (g) = water (ml) ÷ ratio
+```
+
+**Presets:**
+- **1:12** — Strong, concentrated (espresso-like intensity)
+- **1:15** — Standard, balanced (most pour-over recipes)
+- **1:16** — Light, tea-like clarity
+- **1:17** — Very light, subtle
+
+**Custom:** Enter any ratio (e.g., 1:13.5) for specific recipes.
+
+Example: 250 ml water at 1:15 → 250 ÷ 15 = **16.7 g coffee**
+
+> **Tip:** Weigh both water and coffee for consistency. Volume measurements
+> (tablespoons, scoops) vary too much for repeatable results.
+
+## How the Particle Analyzer Works
+
+Three modes, selectable via radio buttons:
+
+**Photo Estimate:** Load a photograph of coffee grounds. The selected region
+(or centre 50%) is divided into 8×8 px cells; average per-cell luminance
+variance is mapped to a grind band (Extra Fine <250 µm → Extra Coarse
+>1200 µm). Result shown on a gradient gauge with contextual brew tips.
+
+**Sieve Cascade:** Physically sieve grounds and photograph each fraction on a
+white background. The app thresholds each image (luminance < 0.7 = particle)
+to compute relative dark-pixel area, accumulates entries for user-selected
+sieve sizes (212–1700 µm), and renders a labelled bar-chart with a D50
+estimate.
+
+**Calibrated Sheet:** Photograph grounds on paper alongside a known scale
+reference and enter the px/mm calibration. The app thresholds the image and
+flood-fills connected components to measure each particle blob; effective
+diameter = 2·√(area/π). Results shown as a histogram with D50, D90, and
+particle count.
 
 ## Theme Support
 
