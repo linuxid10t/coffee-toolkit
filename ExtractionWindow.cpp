@@ -1,4 +1,7 @@
-/*  ExtractionWindow.cpp – Coffee Toolkit */
+/*  ExtractionWindow.cpp – Coffee Toolkit
+ *
+ *  Author: David Masson
+ */
 
 #include "ExtractionWindow.h"
 #include "Constants.h"
@@ -183,8 +186,8 @@ ExtractionWindow::ExtractionWindow()
 
     fTipsScroll = new BScrollView("tips_scroll", fTipsView,
                                   B_FOLLOW_ALL, 0, false, true);
-    fTipsScroll->SetExplicitMinSize(BSize(460, 130));
-    fTipsScroll->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 180));
+    fTipsScroll->SetExplicitMinSize(BSize(460, 70));
+    fTipsScroll->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 90));
 
     // Wrap each radio pair in its own BGroupView so the two pairs
     // don't form one mutual-exclusion group.
@@ -237,7 +240,7 @@ ExtractionWindow::ExtractionWindow()
             .End();
 
     ResizeTo(GetLayout()->PreferredSize().width  + 40,
-             GetLayout()->PreferredSize().height + 40);
+             GetLayout()->PreferredSize().height);
     CenterOnScreen();
 }
 

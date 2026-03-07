@@ -1,4 +1,7 @@
-/*  RoastColorWindow.cpp – Coffee Toolkit */
+/*  RoastColorWindow.cpp – Coffee Toolkit
+ *
+ *  Author: David Masson
+ */
 
 #include "RoastColorWindow.h"
 #include "Constants.h"
@@ -346,8 +349,8 @@ RoastColorWindow::RoastColorWindow()
 
     BMessenger me(this);
     fThumbView = new ThumbView(BRect(0, 0, 319, 239), me);
-    fThumbView->SetExplicitMinSize(BSize(320, 240));
-    fThumbView->SetExplicitMaxSize(BSize(320, 240));
+    fThumbView->SetExplicitMinSize(BSize(320, 180));
+    fThumbView->SetExplicitMaxSize(BSize(320, 180));
 
     fSelHintView = new BStringView("sel_hint",
         "Drag on the image to select a sample region.");
@@ -395,8 +398,8 @@ RoastColorWindow::RoastColorWindow()
 
     fTipsScroll = new BScrollView("roast_tips_scroll", fTipsView,
                                   B_FOLLOW_ALL, 0, false, true);
-    fTipsScroll->SetExplicitMinSize(BSize(460, 130));
-    fTipsScroll->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 200));
+    fTipsScroll->SetExplicitMinSize(BSize(460, 70));
+    fTipsScroll->SetExplicitMaxSize(BSize(B_SIZE_UNLIMITED, 100));
 
     BMenuBar* menuBar = new BMenuBar("menubar");
     BMenu* helpMenu = new BMenu("Help");
@@ -429,7 +432,7 @@ RoastColorWindow::RoastColorWindow()
             .End();
 
     ResizeTo(GetLayout()->PreferredSize().width  + 40,
-             GetLayout()->PreferredSize().height + 40);
+             GetLayout()->PreferredSize().height);
     CenterOnScreen();
 }
 

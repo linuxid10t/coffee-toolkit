@@ -24,7 +24,7 @@ are 18–22% for percolation, 18–24% for immersion. Shows contextual tips
 based on result.
 
 ### Roast Color Analyzer
-Loads a JPEG/PNG image via BFilePanel and displays a 320×240 interactive
+Loads a JPEG/PNG image via BFilePanel and displays a 320×180 interactive
 thumbnail. The user can drag a selection rectangle on the thumbnail to
 define a custom sampling region; otherwise the central 50% is used.
 Pixels in the region are linearised from sRGB and converted to CIE
@@ -112,8 +112,11 @@ theme in their constructors.
   combination (e.g. "Mode: TDS | Percolation (ideal 18-22%)")
 - Analyse button removed from RoastColorWindow in favour of fully
   automatic reactive analysis (fires on load and on selection change)
-- Thumbnails are 240×180 — large enough for drag selection without
+- Thumbnails are 320×180 — large enough for drag selection without
   pushing the window height above 600 px on smaller screens
+- All tool windows optimized to fit within 600 px total height
+  (content + Haiku title bar + borders) by reducing tips scroll areas
+  and removing unnecessary height buffers from ResizeTo() calls
 
 ## Build
 
@@ -126,7 +129,7 @@ Or manually:
 ```bash
 g++ -std=c++17 -o coffee_toolkit \
     main.cpp MainWindow.cpp BrewRatioWindow.cpp \
-    ExtractionWindow.cpp RoastColorWindow.cpp DetailWindow.cpp Settings.cpp \
+    ExtractionWindow.cpp RoastColorWindow.cpp ParticleWindow.cpp Settings.cpp \
     -lbe -lroot -ltranslation -ltracker -lshared
 g++ -std=c++17 -o set_icon set_icon.cpp -lbe -lroot -ltranslation
 rc -o coffee_toolkit.rsrc coffee_toolkit.rdef
@@ -149,7 +152,7 @@ MainWindow.h/.cpp        Four-button launcher window
 BrewRatioWindow.h/.cpp   Brew ratio calculator
 ExtractionWindow.h/.cpp  Extraction calculator + ExtractionBarView gauge
 RoastColorWindow.h/.cpp  Roast analyzer + RoastGaugeView + ThumbView
-DetailWindow.h/.cpp      Particle analyzer (Photo / Sieve / Calibrated modes)
+ParticleWindow.h/.cpp    Particle analyzer (Photo / Sieve / Calibrated modes)
 Settings.h/.cpp          Persistent settings singleton + cross-window sync
 toolkit.png              Application icon source (1024×1024 RGBA)
 set_icon.cpp             Build helper: scales PNG → CMAP8 icon attributes
